@@ -1,54 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { DATA } from "@/lib/data";
 
-const DATA = [
-  { band: "Jazz Nicolás", member: "Nicolás Torres Baena", role: "Mandolina, Director", context: "1924 Formation" },
-  { band: "Jazz Nicolás", member: "Enrique Castro", role: "Violín", context: "1924 Formation" },
-  { band: "Jazz Nicolás", member: "Juan de Dios Durán", role: "Saxofón", context: "1924 Formation" },
-  { band: "Jazz Nicolás", member: "Abel Arenas", role: "Guitarra, Cantante", context: "1937 Formation" },
-  { band: "Jazz Nicolás", member: "Jorge Marín Vieco", role: "Saxofón", context: "1924 Formation" },
-  { band: "Orquesta Tropical", member: "Nicolás Torres", role: "Pianista, Director", context: "1946 Formation" },
-  { band: "Orquesta Tropical", member: "César Sepúlveda", role: "Trompeta", context: "1946 Formation" },
-  { band: "Orquesta Tropical", member: "Gerardo Vélez", role: "Cantante romántico", context: "1946 Formation" },
-  { band: "Orquesta Tropical", member: "Jaime Gallego", role: "Bajo", context: "1946 Formation" },
-  { band: "Orquesta Swing Stars", member: "Jesús Rincón", role: "Piano", context: "c. 1949" },
-  { band: "Orquesta Swing Stars", member: "César Sepúlveda", role: "Trompeta", context: "c. 1949" },
-  { band: "Orquesta Swing Stars", member: "Jaime Gallego", role: "Contrabajo", context: "c. 1949" },
-  { band: "Orquesta Swing Stars", member: "José Pérez Pérez", role: "Saxofón", context: "c. 1949" },
-  { band: "Los Ases del Ritmo", member: "Arturo Zuluaga", role: "Cantante, Compositor, Líder", context: "Initial Formation" },
-  { band: "Los Ases del Ritmo", member: "César Sepúlveda", role: "Trompeta", context: "Initial Formation" },
-  { band: "Los Ases del Ritmo", member: "Nicolás Torres", role: "Piano", context: "Reinforcement" },
-  { band: "Los Ases del Ritmo", member: "Ramón Paniagua", role: "Saxofón", context: "Initial Formation" },
-  { band: "Orquesta Medellín", member: "Arturo Zuluaga", role: "Cantante", context: "General Formation" },
-  { band: "Orquesta Medellín", member: "Fabio Bedoya", role: "Trompetista (Founder)", context: "General Formation" },
-  { band: "Orquesta Medellín", member: "Ramón Paniagua", role: "Saxofón", context: "General Formation" },
-  { band: "Los Caballeros del Ritmo", member: "Enrique Giraldo", role: "Saxofón, Director", context: "1950s" },
-  { band: "Los Caballeros del Ritmo", member: "Abraham Sánchez", role: "Bajo", context: "1950s" },
-  { band: "Los Caballeros del Ritmo", member: "Jorge Castrillón", role: "Saxofón", context: "1950s" },
-  { band: "Orquesta Sonolux", member: "Álvaro Rojas", role: "Saxofón tenor", context: "1960–1962" },
-  { band: "Orquesta Sonolux", member: "Manuel Cervantes", role: "Trompeta", context: "1960–1962" },
-  { band: "Orquesta Sonolux", member: "Arsenio Montes", role: "Trombón", context: "1960–1962" },
-  { band: "Orquesta Sonolux", member: "Luis Cataño", role: "Saxofón barítono", context: "1960–1962" },
-];
+const NetworkGraph = lazy(() => import("@/components/NetworkGraph"));
 
 const BAND_COLORS: Record<string, string> = {
+  "Lira Unión": "bg-indigo-100 text-indigo-800 border-indigo-200",
   "Jazz Nicolás": "bg-blue-100 text-blue-800 border-blue-200",
+  "Orquesta de Jorge Marín Vieco": "bg-cyan-100 text-cyan-800 border-cyan-200",
   "Orquesta Tropical": "bg-orange-100 text-orange-800 border-orange-200",
   "Orquesta Swing Stars": "bg-purple-100 text-purple-800 border-purple-200",
-  "Los Ases del Ritmo": "bg-green-100 text-green-800 border-green-200",
+  "Orquesta Rítmica": "bg-teal-100 text-teal-800 border-teal-200",
+  "Los Estudiantes": "bg-lime-100 text-lime-800 border-lime-200",
   "Orquesta Medellín": "bg-red-100 text-red-800 border-red-200",
+  "Los Ases del Ritmo": "bg-green-100 text-green-800 border-green-200",
   "Los Caballeros del Ritmo": "bg-yellow-100 text-yellow-800 border-yellow-200",
   "Orquesta Sonolux": "bg-pink-100 text-pink-800 border-pink-200",
+  "Los Ídolos": "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200",
+  "Sexteto Miramar": "bg-rose-100 text-rose-800 border-rose-200",
+  "Los Corraleros de Majagual": "bg-amber-100 text-amber-800 border-amber-200",
+  "El Combo de las Estrellas": "bg-sky-100 text-sky-800 border-sky-200",
+  "Los Diplomáticos": "bg-violet-100 text-violet-800 border-violet-200",
 };
+
+type View = "graph" | "cards";
 
 export default function Home() {
   const [search, setSearch] = useState("");
   const [selectedBand, setSelectedBand] = useState<string | null>(null);
+  const [view, setView] = useState<View>("graph");
 
   const bands = [...new Set(DATA.map((d) => d.band))];
 
@@ -57,79 +42,108 @@ export default function Home() {
     const matchesSearch =
       search === "" ||
       d.member.toLowerCase().includes(search.toLowerCase()) ||
-      d.role.toLowerCase().includes(search.toLowerCase());
+      d.role.toLowerCase().includes(search.toLowerCase()) ||
+      d.band.toLowerCase().includes(search.toLowerCase());
     return matchesBand && matchesSearch;
   });
 
   const groupedByBand = bands
     .filter((b) => !selectedBand || b === selectedBand)
-    .map((band) => ({
-      band,
-      members: filtered.filter((d) => d.band === band),
-    }))
+    .map((band) => ({ band, members: filtered.filter((d) => d.band === band) }))
     .filter((g) => g.members.length > 0);
 
   return (
-    <main className="min-h-screen bg-background p-6 md:p-10">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <main className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <div className="border-b px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Visualizador de Artistas</h1>
-          <p className="text-muted-foreground mt-1">Colombian music bands · members · instruments</p>
+          <h1 className="text-2xl font-bold tracking-tight">Visualizador de Artistas</h1>
+          <p className="text-muted-foreground text-sm">Colombian music bands · members · instruments</p>
         </div>
 
-        <div className="space-y-3">
-          <Input
-            placeholder="Search members or roles..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-sm"
-          />
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant={selectedBand === null ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedBand(null)}
-            >
-              All Bands
-            </Button>
-            {bands.map((band) => (
-              <Button
-                key={band}
-                variant={selectedBand === band ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedBand(band === selectedBand ? null : band)}
-              >
-                {band}
-              </Button>
+        {/* View toggle */}
+        <div className="flex gap-2">
+          <Button
+            variant={view === "graph" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setView("graph")}
+          >
+            Network Graph
+          </Button>
+          <Button
+            variant={view === "cards" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setView("cards")}
+          >
+            Cards
+          </Button>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="px-6 py-3 border-b flex flex-wrap gap-2 items-center">
+        <Input
+          placeholder="Search members, roles, bands…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-xs h-8 text-sm"
+        />
+        <Button
+          variant={selectedBand === null ? "default" : "outline"}
+          size="sm"
+          onClick={() => setSelectedBand(null)}
+        >
+          All
+        </Button>
+        {bands.map((band) => (
+          <Button
+            key={band}
+            variant={selectedBand === band ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedBand(band === selectedBand ? null : band)}
+          >
+            {band}
+          </Button>
+        ))}
+      </div>
+
+      {/* Content */}
+      {view === "graph" ? (
+        <div className="flex-1 min-h-[600px]">
+          <Suspense fallback={<div className="flex items-center justify-center h-full text-muted-foreground">Loading graph…</div>}>
+            <NetworkGraph highlight={search || selectedBand || undefined} />
+          </Suspense>
+        </div>
+      ) : (
+        <div className="flex-1 p-6">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+            {groupedByBand.map(({ band, members }) => (
+              <Card key={band}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">{band}</CardTitle>
+                  <CardDescription className="text-xs">{members[0]?.context}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-1.5">
+                  {members.map((m, i) => (
+                    <div key={i} className="flex items-start justify-between gap-2">
+                      <span className="text-sm font-medium leading-snug">{m.member}</span>
+                      <Badge
+                        className={`text-xs shrink-0 ${BAND_COLORS[band] ?? "bg-gray-100 text-gray-800"}`}
+                        variant="outline"
+                      >
+                        {m.role}
+                      </Badge>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
             ))}
+            {groupedByBand.length === 0 && (
+              <p className="col-span-full text-center text-muted-foreground py-12">No results found.</p>
+            )}
           </div>
         </div>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          {groupedByBand.map(({ band, members }) => (
-            <Card key={band}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">{band}</CardTitle>
-                <CardDescription>{members[0]?.context}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {members.map((m, i) => (
-                  <div key={i} className="flex items-start justify-between gap-2">
-                    <span className="text-sm font-medium leading-snug">{m.member}</span>
-                    <Badge className={`text-xs shrink-0 ${BAND_COLORS[band] ?? ""}`} variant="outline">
-                      {m.role}
-                    </Badge>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {groupedByBand.length === 0 && (
-          <p className="text-center text-muted-foreground py-12">No results found.</p>
-        )}
-      </div>
+      )}
     </main>
   );
 }
