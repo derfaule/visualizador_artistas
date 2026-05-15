@@ -53,7 +53,7 @@ export default function Home() {
     .filter((g) => g.members.length > 0);
 
   return (
-    <main className="min-h-screen bg-background flex flex-col">
+    <main className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header */}
       <div className="border-b px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
@@ -109,13 +109,13 @@ export default function Home() {
 
       {/* Content */}
       {view === "graph" ? (
-        <div className="flex-1 min-h-[600px]">
+        <div className="flex-1 overflow-hidden">
           <Suspense fallback={<div className="flex items-center justify-center h-full text-muted-foreground">Loading graph…</div>}>
             <NetworkGraph highlight={search || selectedBand || undefined} />
           </Suspense>
         </div>
       ) : (
-        <div className="flex-1 p-6">
+        <div className="flex-1 overflow-y-auto p-6">
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
             {groupedByBand.map(({ band, members }) => (
               <Card key={band}>
