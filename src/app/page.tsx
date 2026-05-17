@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, lazy, Suspense } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -108,42 +109,58 @@ export default function Home() {
       </div>
 
       {/* Content */}
-      {view === "graph" ? (
-        <div className="flex-1 overflow-hidden">
-          <Suspense fallback={<div className="flex items-center justify-center h-full text-muted-foreground">Loading graph…</div>}>
-            <NetworkGraph highlight={search || selectedBand || undefined} />
-          </Suspense>
-        </div>
-      ) : (
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-            {groupedByBand.map(({ band, members }) => (
-              <Card key={band}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">{band}</CardTitle>
-                  <CardDescription className="text-xs">{members[0]?.context}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-1.5">
-                  {members.map((m, i) => (
-                    <div key={i} className="flex items-start justify-between gap-2">
-                      <span className="text-sm font-medium leading-snug">{m.member}</span>
-                      <Badge
-                        className={`text-xs shrink-0 ${BAND_COLORS[band] ?? "bg-gray-100 text-gray-800"}`}
-                        variant="outline"
-                      >
-                        {m.role}
-                      </Badge>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
-            {groupedByBand.length === 0 && (
-              <p className="col-span-full text-center text-muted-foreground py-12">No results found.</p>
-            )}
-          </div>
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {view === "graph" ? (
+          <motion.div
+            key="graph"
+            className="flex-1 overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Suspense fallback={<div className="flex items-center justify-center h-full text-muted-foreground">Loading graph…</div>}>
+              <NetworkGraph highlight={search || selectedBand || undefined} />
+            </Suspense>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="cards"
+            className="flex-1 overflow-y-auto p-6"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+              {groupedByBand.map(({ band, members }) => (
+                <Card key={band}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">{band}</CardTitle>
+                    <CardDescription className="text-xs">{members[0]?.context}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-1.5">
+                    {members.map((m, i) => (
+                      <div key={i} className="flex items-start justify-between gap-2">
+                        <span className="text-sm font-medium leading-snug">{m.member}</span>
+                        <Badge
+                          className={`text-xs shrink-0 ${BAND_COLORS[band] ?? "bg-gray-100 text-gray-800"}`}
+                          variant="outline"
+                        >
+                          {m.role}
+                        </Badge>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              ))}
+              {groupedByBand.length === 0 && (
+                <p className="col-span-full text-center text-muted-foreground py-12">No results found.</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
