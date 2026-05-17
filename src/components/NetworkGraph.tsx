@@ -1,32 +1,10 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import {
-  ReactFlow,
-  Background,
-  Controls,
-  MiniMap,
-  useNodesState,
-  useEdgesState,
-  type OnConnect,
-  type NodeMouseHandler,
-  addEdge,
-  BackgroundVariant,
-  Panel,
-} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
-import dagre from "@dagrejs/dagre";
+import { useEffect, useRef } from "react";
+import * as d3 from "d3";
 import { DATA, normalizeBandName } from "@/lib/data";
 
-const BAND_COLORS = [
-  "#6366f1", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6",
-  "#ec4899", "#14b8a6", "#f97316", "#3b82f6", "#84cc16",
-  "#06b6d4", "#a855f7", "#e11d48", "#0ea5e9",
-];
-
-export type SelectedNode =
-  | { type: "band"; id: string }
-  | { type: "member"; id: string };
+export type SelectedNode = { type: "band" | "member"; id: string };
 
 interface Props {
   highlight?: string;
@@ -34,257 +12,334 @@ interface Props {
   onSelect?: (node: SelectedNode | null) => void;
 }
 
-const BAND_W = 160;
-const BAND_H = 44;
-const MEMBER_W = 140;
-const MEMBER_H = 32;
+const BAND_COLOR_LIST = [
+  "#6366f1", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6",
+  "#ec4899", "#14b8a6", "#f97316", "#3b82f6", "#84cc16",
+  "#06b6d4", "#a855f7", "#e11d48", "#0ea5e9",
+];
 
-function getLayout(
-  bands: string[],
-  memberBands: Map<string, string[]>,
-  edgePairs: { member: string; band: string }[]
-): Map<string, { x: number; y: number }> {
-  const g = new dagre.graphlib.Graph({ multigraph: false });
-  g.setGraph({
-    rankdir: "LR",
-    ranksep: 220,
-    nodesep: 28,
-    marginx: 60,
-    marginy: 60,
-  });
-  g.setDefaultEdgeLabel(() => ({}));
-
-  bands.forEach((band) => {
-    g.setNode(`band::${band}`, { width: BAND_W, height: BAND_H });
-  });
-
-  [...memberBands.keys()].forEach((member) => {
-    g.setNode(`member::${member}`, { width: MEMBER_W, height: MEMBER_H });
-  });
-
-  edgePairs.forEach(({ member, band }) => {
-    g.setEdge(`member::${member}`, `band::${band}`);
-  });
-
-  dagre.layout(g);
-
-  const positions = new Map<string, { x: number; y: number }>();
-  g.nodes().forEach((id) => {
-    const n = g.node(id);
-    positions.set(id, { x: n.x - n.width / 2, y: n.y - n.height / 2 });
-  });
-  return positions;
+interface NodeDatum extends d3.SimulationNodeDatum {
+  id: string;
+  type: "band" | "member";
+  name: string;
+  bands: string[];
 }
 
-function buildGraph(highlight?: string, selected?: SelectedNode | null) {
-  // Canonical (de-parenthesized) band names
-  const bands = [...new Set(DATA.map((d) => normalizeBandName(d.band).name))];
-  const bandColor = new Map(bands.map((b, i) => [b, BAND_COLORS[i % BAND_COLORS.length]]));
+interface LinkDatum extends d3.SimulationLinkDatum<NodeDatum> {
+  bandId: string;
+}
 
-  // member → unique canonical bands (no duplicates from formation variants)
-  const memberBands = new Map<string, string[]>();
+// Split a band name into at most 2 lines of ≤14 chars each
+function wrapLabel(name: string): string[] {
+  if (name.length <= 14) return [name];
+  const words = name.split(/\s+/);
+  const lines: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    const next = cur ? `${cur} ${w}` : w;
+    if (next.length <= 14) {
+      cur = next;
+    } else {
+      if (cur) lines.push(cur);
+      else lines.push(w.slice(0, 14));
+      cur = cur ? w : "";
+      if (lines.length >= 2) { cur = ""; break; }
+    }
+  }
+  if (cur && lines.length < 2) lines.push(cur);
+  return lines;
+}
+
+function buildGraphData() {
+  const bands = [...new Set(DATA.map((d) => normalizeBandName(d.band).name))];
+  const bandColor = new Map(
+    bands.map((b, i) => [b, BAND_COLOR_LIST[i % BAND_COLOR_LIST.length]])
+  );
+
+  const memberBandsMap = new Map<string, Set<string>>();
   DATA.forEach(({ band, member }) => {
     const { name } = normalizeBandName(band);
-    if (!memberBands.has(member)) memberBands.set(member, []);
-    const list = memberBands.get(member)!;
-    if (!list.includes(name)) list.push(name);
+    if (!memberBandsMap.has(member)) memberBandsMap.set(member, new Set());
+    memberBandsMap.get(member)!.add(name);
   });
 
-  // Deduplicated edges: same member+canonical-band → one edge, roles merged
-  const edgeMap = new Map<string, { band: string; member: string; roles: string[] }>();
-  DATA.forEach(({ band, member, role }) => {
-    const { name } = normalizeBandName(band);
-    const key = `${member}::${name}`;
-    if (!edgeMap.has(key)) edgeMap.set(key, { band: name, member, roles: [] });
-    const entry = edgeMap.get(key)!;
-    if (!entry.roles.includes(role)) entry.roles.push(role);
+  const nodes: NodeDatum[] = [
+    ...bands.map((b) => ({ id: `band::${b}`, type: "band" as const, name: b, bands: [b] })),
+    ...[...memberBandsMap.entries()].map(([m, mBands]) => ({
+      id: `member::${m}`,
+      type: "member" as const,
+      name: m,
+      bands: [...mBands],
+    })),
+  ];
+
+  const links: LinkDatum[] = [];
+  memberBandsMap.forEach((mBands, member) => {
+    mBands.forEach((band) => {
+      links.push({ source: `member::${member}` as unknown as NodeDatum, target: `band::${band}` as unknown as NodeDatum, bandId: band });
+    });
   });
 
-  const activeBands = new Set<string>();
-  const activeMembers = new Set<string>();
-
-  if (selected?.type === "band") {
-    activeBands.add(selected.id);
-    DATA.filter((d) => normalizeBandName(d.band).name === selected.id).forEach((d) =>
-      activeMembers.add(d.member)
-    );
-  } else if (selected?.type === "member") {
-    activeMembers.add(selected.id);
-    DATA.filter((d) => d.member === selected.id).forEach((d) =>
-      activeBands.add(normalizeBandName(d.band).name)
-    );
-  }
-
-  const hasSelection = !!selected;
-
-  const isLit = (type: "band" | "member", id: string) => {
-    if (!hasSelection && !highlight) return true;
-    if (highlight) return id.toLowerCase().includes(highlight.toLowerCase());
-    return type === "band" ? activeBands.has(id) : activeMembers.has(id);
-  };
-
-  const edgePairs = [...edgeMap.values()].map((e) => ({ member: e.member, band: e.band }));
-  const positions = getLayout(bands, memberBands, edgePairs);
-
-  const bandNodes = bands.map((band) => {
-    const color = bandColor.get(band)!;
-    const lit = isLit("band", band);
-    const isSel = selected?.type === "band" && selected.id === band;
-    const pos = positions.get(`band::${band}`) ?? { x: 0, y: 0 };
-    return {
-      id: `band::${band}`,
-      position: pos,
-      data: { label: band },
-      style: {
-        background: lit ? color : "#e2e8f0",
-        color: lit ? "#fff" : "#94a3b8",
-        border: isSel ? `3px solid #fff` : "none",
-        borderRadius: 10,
-        padding: "8px 16px",
-        fontWeight: 700,
-        fontSize: 12,
-        opacity: lit ? 1 : 0.25,
-        boxShadow: isSel
-          ? `0 0 0 4px ${color}, 0 4px 20px rgba(0,0,0,0.2)`
-          : "0 2px 8px rgba(0,0,0,0.1)",
-        width: BAND_W,
-        textAlign: "center" as const,
-        cursor: "pointer",
-        transition: "all 0.15s",
-        whiteSpace: "nowrap" as const,
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-      },
-    };
-  });
-
-  const memberNodes = [...memberBands.entries()].map(([member, mBands]) => {
-    const isMulti = mBands.length > 1;
-    const lit = isLit("member", member);
-    const isSel = selected?.type === "member" && selected.id === member;
-    const pos = positions.get(`member::${member}`) ?? { x: 0, y: 0 };
-    return {
-      id: `member::${member}`,
-      position: pos,
-      data: { label: member },
-      style: {
-        background: lit ? (isMulti ? "#1e293b" : "#f8fafc") : "#f1f5f9",
-        color: lit ? (isMulti ? "#fff" : "#334155") : "#94a3b8",
-        border: isSel
-          ? "2px solid #6366f1"
-          : isMulti
-          ? "2px solid #6366f1"
-          : "1.5px solid #cbd5e1",
-        borderRadius: 20,
-        padding: "4px 12px",
-        fontSize: 11,
-        opacity: lit ? 1 : 0.2,
-        boxShadow: isSel ? "0 0 0 3px #6366f166" : isMulti ? "0 0 0 2px #6366f122" : "none",
-        whiteSpace: "nowrap" as const,
-        cursor: "pointer",
-        transition: "all 0.15s",
-        width: MEMBER_W,
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-      },
-    };
-  });
-
-  const edges = [...edgeMap.values()].map(({ band, member, roles }, i) => {
-    const color = bandColor.get(band) ?? "#94a3b8";
-    const lit =
-      !hasSelection && !highlight
-        ? true
-        : highlight
-        ? member.toLowerCase().includes(highlight.toLowerCase()) ||
-          band.toLowerCase().includes(highlight.toLowerCase())
-        : activeBands.has(band) && activeMembers.has(member);
-
-    return {
-      id: `e-${i}`,
-      source: `member::${member}`,
-      target: `band::${band}`,
-      label: roles.join(" / "),
-      style: {
-        stroke: lit ? color : "#e2e8f0",
-        strokeWidth: lit ? 2 : 1,
-        opacity: lit ? 0.75 : 0.15,
-      },
-      labelStyle: { fontSize: 9, fill: "#64748b" },
-      labelBgStyle: { fill: "#fff", fillOpacity: 0.85 },
-      labelShowBg: lit,
-      animated: false,
-    };
-  });
-
-  return { nodes: [...bandNodes, ...memberNodes], edges };
+  return { nodes, links, bandColor };
 }
 
 export default function NetworkGraph({ highlight, selected, onSelect }: Props) {
-  const { nodes: initNodes, edges: initEdges } = useMemo(
-    () => buildGraph(highlight, selected),
-    [highlight, selected]
-  );
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const [nodes, , onNodesChange] = useNodesState(initNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
+  // Stable refs so D3 callbacks never go stale without restarting the sim
+  const selectedRef = useRef(selected);
+  const highlightRef = useRef(highlight);
+  const onSelectRef = useRef(onSelect);
+  const applyStylesRef = useRef<(() => void) | null>(null);
 
-  const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges]
-  );
+  useEffect(() => { selectedRef.current = selected; }, [selected]);
+  useEffect(() => { highlightRef.current = highlight; }, [highlight]);
+  useEffect(() => { onSelectRef.current = onSelect; }, [onSelect]);
 
-  const handleNodeClick: NodeMouseHandler = useCallback(
-    (_, node) => {
-      const [type, ...rest] = node.id.split("::");
-      const id = rest.join("::");
-      if (type === "band" || type === "member") {
-        const next: SelectedNode = { type, id };
-        const isSame = selected?.type === type && selected?.id === id;
-        onSelect?.(isSame ? null : next);
+  // Re-style without touching the simulation
+  useEffect(() => { applyStylesRef.current?.(); }, [selected, highlight]);
+
+  // Build the graph once on mount
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const { width, height } = el.getBoundingClientRect();
+    const { nodes, links, bandColor } = buildGraphData();
+
+    const svg = d3
+      .select(el)
+      .append("svg")
+      .attr("width", "100%")
+      .attr("height", "100%")
+      .style("cursor", "grab");
+
+    // Zoom / pan
+    const root = svg.append("g");
+    svg.call(
+      d3
+        .zoom<SVGSVGElement, unknown>()
+        .scaleExtent([0.04, 4])
+        .on("zoom", (ev) => {
+          root.attr("transform", ev.transform);
+          svg.style("cursor", ev.sourceEvent?.type === "mousedown" ? "grabbing" : "grab");
+        })
+    );
+
+    svg.on("click", () => onSelectRef.current?.(null));
+
+    // Simulation
+    const sim = d3
+      .forceSimulation(nodes)
+      .force(
+        "link",
+        d3
+          .forceLink<NodeDatum, LinkDatum>(links)
+          .id((d) => d.id)
+          .distance((l) => ((l.source as NodeDatum).bands?.length > 1 ? 90 : 50))
+          .strength(0.6)
+      )
+      .force(
+        "charge",
+        d3.forceManyBody<NodeDatum>().strength((d) => (d.type === "band" ? -800 : -25))
+      )
+      .force("center", d3.forceCenter(width / 2, height / 2).strength(0.04))
+      .force(
+        "collide",
+        d3.forceCollide<NodeDatum>().radius((d) => (d.type === "band" ? 56 : 10)).strength(0.6)
+      );
+
+    // ── Edges ────────────────────────────────────────────────────────────────
+    const linkSel = root
+      .append("g")
+      .selectAll<SVGLineElement, LinkDatum>("line")
+      .data(links)
+      .join("line")
+      .attr("stroke-width", 1)
+      .attr("stroke", (d) => bandColor.get(d.bandId) ?? "#94a3b8")
+      .attr("opacity", 0.25);
+
+    // ── Member nodes ─────────────────────────────────────────────────────────
+    const memberSel = root
+      .append("g")
+      .selectAll<SVGCircleElement, NodeDatum>("circle")
+      .data(nodes.filter((n) => n.type === "member"))
+      .join("circle")
+      .attr("r", (d) => (d.bands.length > 1 ? 7 : 5))
+      .attr("fill", (d) => {
+        if (d.bands.length > 1) return "#1e293b";
+        const c = bandColor.get(d.bands[0]);
+        return c ?? "#e2e8f0";
+      })
+      .attr("fill-opacity", (d) => (d.bands.length > 1 ? 1 : 0.35))
+      .attr("stroke", (d) => {
+        if (d.bands.length > 1) return "#6366f1";
+        return bandColor.get(d.bands[0]) ?? "#94a3b8";
+      })
+      .attr("stroke-width", 1.5)
+      .attr("cursor", "pointer")
+      .on("click", (ev, d) => {
+        ev.stopPropagation();
+        const id = d.name;
+        const cur = selectedRef.current;
+        onSelectRef.current?.(
+          cur?.type === "member" && cur.id === id ? null : { type: "member", id }
+        );
+      });
+
+    // ── Band nodes (<g> so we can attach text labels) ─────────────────────────
+    const bandG = root
+      .append("g")
+      .selectAll<SVGGElement, NodeDatum>("g")
+      .data(nodes.filter((n) => n.type === "band"))
+      .join("g")
+      .attr("cursor", "pointer")
+      .on("click", (ev, d) => {
+        ev.stopPropagation();
+        const id = d.name;
+        const cur = selectedRef.current;
+        onSelectRef.current?.(
+          cur?.type === "band" && cur.id === id ? null : { type: "band", id }
+        );
+      });
+
+    bandG
+      .append("circle")
+      .attr("r", 24)
+      .attr("fill", (d) => bandColor.get(d.name) ?? "#6366f1")
+      .attr("stroke", "none")
+      .attr("stroke-width", 3);
+
+    // Selection ring (invisible by default)
+    bandG
+      .append("circle")
+      .attr("class", "ring")
+      .attr("r", 28)
+      .attr("fill", "none")
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 3)
+      .attr("opacity", 0);
+
+    // Text labels below each band circle
+    bandG.each(function (d) {
+      const g = d3.select(this);
+      const lines = wrapLabel(d.name);
+      lines.forEach((line, i) => {
+        g.append("text")
+          .text(line)
+          .attr("text-anchor", "middle")
+          .attr("x", 0)
+          .attr("y", 30 + i * 13)
+          .attr("font-size", 9)
+          .attr("font-weight", "600")
+          .attr("fill", "#334155")
+          .attr("pointer-events", "none");
+      });
+    });
+
+    // ── Drag ─────────────────────────────────────────────────────────────────
+    const makeDrag = <T extends SVGElement>() =>
+      d3
+        .drag<T, NodeDatum>()
+        .on("start", (ev, d) => {
+          if (!ev.active) sim.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+        })
+        .on("drag", (ev, d) => {
+          d.fx = ev.x;
+          d.fy = ev.y;
+        })
+        .on("end", (ev, d) => {
+          if (!ev.active) sim.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+        });
+
+    bandG.call(makeDrag<SVGGElement>());
+    memberSel.call(makeDrag<SVGCircleElement>());
+
+    // ── Tick ─────────────────────────────────────────────────────────────────
+    sim.on("tick", () => {
+      linkSel
+        .attr("x1", (d) => (d.source as NodeDatum).x ?? 0)
+        .attr("y1", (d) => (d.source as NodeDatum).y ?? 0)
+        .attr("x2", (d) => (d.target as NodeDatum).x ?? 0)
+        .attr("y2", (d) => (d.target as NodeDatum).y ?? 0);
+
+      memberSel.attr("cx", (d) => d.x ?? 0).attr("cy", (d) => d.y ?? 0);
+      bandG.attr("transform", (d) => `translate(${d.x ?? 0},${d.y ?? 0})`);
+    });
+
+    // ── Style updater (called on selected / highlight change) ─────────────────
+    applyStylesRef.current = () => {
+      const sel = selectedRef.current;
+      const hl = highlightRef.current?.toLowerCase();
+
+      const activeBands = new Set<string>();
+      const activeMembers = new Set<string>();
+
+      if (sel?.type === "band") {
+        activeBands.add(sel.id);
+        DATA.filter((d) => normalizeBandName(d.band).name === sel.id).forEach((d) =>
+          activeMembers.add(d.member)
+        );
+      } else if (sel?.type === "member") {
+        activeMembers.add(sel.id);
+        DATA.filter((d) => d.member === sel.id).forEach((d) =>
+          activeBands.add(normalizeBandName(d.band).name)
+        );
       }
-    },
-    [selected, onSelect]
-  );
+
+      const isLit = (type: "band" | "member", name: string) => {
+        if (!sel && !hl) return true;
+        if (hl) return name.toLowerCase().includes(hl);
+        return type === "band" ? activeBands.has(name) : activeMembers.has(name);
+      };
+
+      // Bands
+      bandG.attr("opacity", (d) => (isLit("band", d.name) ? 1 : 0.12));
+      bandG.select<SVGCircleElement>(".ring").attr("opacity", (d) =>
+        sel?.type === "band" && sel.id === d.name ? 1 : 0
+      );
+
+      // Members
+      memberSel.attr("opacity", (d) => (isLit("member", d.name) ? 1 : 0.08));
+
+      // Edges
+      linkSel.attr("opacity", (d) => {
+        const src = d.source as NodeDatum;
+        const tgt = d.target as NodeDatum;
+        if (!sel && !hl) return 0.25;
+        if (hl)
+          return src.name.toLowerCase().includes(hl) || tgt.name.toLowerCase().includes(hl)
+            ? 0.6
+            : 0.04;
+        return activeBands.has(tgt.name) && activeMembers.has(src.name) ? 0.7 : 0.04;
+      });
+    };
+
+    applyStylesRef.current();
+
+    return () => {
+      sim.stop();
+      d3.select(el).selectAll("*").remove();
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      onNodeClick={handleNodeClick}
-      onPaneClick={() => onSelect?.(null)}
-      fitView
-      fitViewOptions={{ padding: 0.12 }}
-      minZoom={0.05}
-      maxZoom={3}
-      attributionPosition="bottom-right"
-    >
-      <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#e2e8f0" />
-      <Controls />
-      <MiniMap
-        nodeColor={(n) => {
-          const s = n.style as React.CSSProperties | undefined;
-          return typeof s?.background === "string" ? s.background : "#94a3b8";
-        }}
-        maskColor="rgba(255,255,255,0.7)"
-        style={{ width: 140, height: 90 }}
-      />
-      <Panel position="bottom-left">
-        <div className="flex gap-4 text-xs text-slate-500 bg-white/80 backdrop-blur px-3 py-2 rounded-lg border border-slate-200 shadow-sm">
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm bg-indigo-500 inline-block" /> Band
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-slate-800 inline-block border-2 border-indigo-400" /> Multi-band
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-slate-100 inline-block border border-slate-300" /> Single band
-          </span>
-        </div>
-      </Panel>
-    </ReactFlow>
+    <div ref={containerRef} className="w-full h-full relative">
+      <div className="absolute bottom-4 left-4 flex gap-4 text-xs text-slate-500 bg-white/80 backdrop-blur px-3 py-2 rounded-lg border border-slate-200 shadow-sm z-10 pointer-events-none">
+        <span className="flex items-center gap-1.5">
+          <span className="w-4 h-4 rounded-full bg-indigo-500 inline-block" /> Band
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-slate-800 inline-block border border-indigo-400" /> Multi-band
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-indigo-200 inline-block border border-indigo-400" /> Member
+        </span>
+      </div>
+    </div>
   );
 }
