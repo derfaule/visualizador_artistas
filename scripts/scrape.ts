@@ -24,8 +24,9 @@ const DELAY_MS = 1100; // MusicBrainz: max 1 req/s
 
 const args = process.argv.slice(2);
 const onlyBands = args.includes("--only-bands");
+const _nameIdx = args.indexOf("--name");
 const filterName = args.find((a) => a.startsWith("--name="))?.split("=")[1]
-  ?? args[args.indexOf("--name") + 1];
+  ?? (_nameIdx !== -1 ? args[_nameIdx + 1] : undefined);
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -148,7 +149,9 @@ async function main() {
   console.log(`\nScraping ${targets.length} targets → ${OUT}\n`);
 
   for (const { name, kind } of targets) {
-    if (results[name]) {
+    const cached = results[name] as Record<string, unknown> | undefined;
+    // Only skip if we previously found real data or hit a network error
+    if (cached && (cached.musicbrainz || cached.wikipedia_summary || cached.error)) {
       console.log(`  ✓ skip   ${name} (cached)`);
       continue;
     }
