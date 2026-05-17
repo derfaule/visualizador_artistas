@@ -6,6 +6,12 @@ export interface DataRecord {
   citations: string;
 }
 
+/** Strips parenthetical formation suffixes, e.g. "Orquesta de Ricaurte Arias (Jardín Pilsen)" → { name: "Orquesta de Ricaurte Arias", note: "Jardín Pilsen" } */
+export function normalizeBandName(band: string): { name: string; note: string | null } {
+  const m = band.match(/^(.+?)\s*\((.+)\)$/);
+  return m ? { name: m[1].trim(), note: m[2].trim() } : { name: band, note: null };
+}
+
 export const DATA: DataRecord[] = [
   { band: "Lira Unión", member: "Horacio Valencia Arango", role: "Director", context: "Orquesta preferida por los medellinenses", citations: "[1]" },
   { band: "Lira Unión", member: "Nicolás Torres", role: "Colaboración en Dirección", context: "Orquesta preferida por los medellinenses", citations: "[1]" },

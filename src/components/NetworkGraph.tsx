@@ -16,7 +16,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import dagre from "@dagrejs/dagre";
-import { DATA } from "@/lib/data";
+import { DATA, normalizeBandName } from "@/lib/data";
 
 const BAND_COLORS = [
   "#6366f1", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6",
@@ -41,13 +41,14 @@ const MEMBER_H = 32;
 
 function getLayout(
   bands: string[],
-  memberBands: Map<string, string[]>
+  memberBands: Map<string, string[]>,
+  edgePairs: { member: string; band: string }[]
 ): Map<string, { x: number; y: number }> {
   const g = new dagre.graphlib.Graph({ multigraph: false });
   g.setGraph({
     rankdir: "LR",
-    ranksep: 220,   // horizontal space between band and member columns
-    nodesep: 28,    // vertical space between nodes in the same column
+    ranksep: 220,
+    nodesep: 28,
     marginx: 60,
     marginy: 60,
   });
@@ -57,11 +58,11 @@ function getLayout(
     g.setNode(`band::${band}`, { width: BAND_W, height: BAND_H });
   });
 
-  [...memberBands.entries()].forEach(([member]) => {
+  [...memberBands.keys()].forEach((member) => {
     g.setNode(`member::${member}`, { width: MEMBER_W, height: MEMBER_H });
   });
 
-  DATA.forEach(({ band, member }) => {
+  edgePairs.forEach(({ member, band }) => {
     g.setEdge(`member::${member}`, `band::${band}`);
   });
 
@@ -76,13 +77,27 @@ function getLayout(
 }
 
 function buildGraph(highlight?: string, selected?: SelectedNode | null) {
-  const bands = [...new Set(DATA.map((d) => d.band))];
+  // Canonical (de-parenthesized) band names
+  const bands = [...new Set(DATA.map((d) => normalizeBandName(d.band).name))];
   const bandColor = new Map(bands.map((b, i) => [b, BAND_COLORS[i % BAND_COLORS.length]]));
 
+  // member → unique canonical bands (no duplicates from formation variants)
   const memberBands = new Map<string, string[]>();
   DATA.forEach(({ band, member }) => {
+    const { name } = normalizeBandName(band);
     if (!memberBands.has(member)) memberBands.set(member, []);
-    memberBands.get(member)!.push(band);
+    const list = memberBands.get(member)!;
+    if (!list.includes(name)) list.push(name);
+  });
+
+  // Deduplicated edges: same member+canonical-band → one edge, roles merged
+  const edgeMap = new Map<string, { band: string; member: string; roles: string[] }>();
+  DATA.forEach(({ band, member, role }) => {
+    const { name } = normalizeBandName(band);
+    const key = `${member}::${name}`;
+    if (!edgeMap.has(key)) edgeMap.set(key, { band: name, member, roles: [] });
+    const entry = edgeMap.get(key)!;
+    if (!entry.roles.includes(role)) entry.roles.push(role);
   });
 
   const activeBands = new Set<string>();
@@ -90,10 +105,14 @@ function buildGraph(highlight?: string, selected?: SelectedNode | null) {
 
   if (selected?.type === "band") {
     activeBands.add(selected.id);
-    DATA.filter((d) => d.band === selected.id).forEach((d) => activeMembers.add(d.member));
+    DATA.filter((d) => normalizeBandName(d.band).name === selected.id).forEach((d) =>
+      activeMembers.add(d.member)
+    );
   } else if (selected?.type === "member") {
     activeMembers.add(selected.id);
-    DATA.filter((d) => d.member === selected.id).forEach((d) => activeBands.add(d.band));
+    DATA.filter((d) => d.member === selected.id).forEach((d) =>
+      activeBands.add(normalizeBandName(d.band).name)
+    );
   }
 
   const hasSelection = !!selected;
@@ -104,7 +123,8 @@ function buildGraph(highlight?: string, selected?: SelectedNode | null) {
     return type === "band" ? activeBands.has(id) : activeMembers.has(id);
   };
 
-  const positions = getLayout(bands, memberBands);
+  const edgePairs = [...edgeMap.values()].map((e) => ({ member: e.member, band: e.band }));
+  const positions = getLayout(bands, memberBands, edgePairs);
 
   const bandNodes = bands.map((band) => {
     const color = bandColor.get(band)!;
@@ -170,7 +190,7 @@ function buildGraph(highlight?: string, selected?: SelectedNode | null) {
     };
   });
 
-  const edges = DATA.map(({ band, member, role }, i) => {
+  const edges = [...edgeMap.values()].map(({ band, member, roles }, i) => {
     const color = bandColor.get(band) ?? "#94a3b8";
     const lit =
       !hasSelection && !highlight
@@ -184,7 +204,7 @@ function buildGraph(highlight?: string, selected?: SelectedNode | null) {
       id: `e-${i}`,
       source: `member::${member}`,
       target: `band::${band}`,
-      label: role,
+      label: roles.join(" / "),
       style: {
         stroke: lit ? color : "#e2e8f0",
         strokeWidth: lit ? 2 : 1,

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { DATA } from "@/lib/data";
+import { DATA, normalizeBandName } from "@/lib/data";
 import type { SelectedNode } from "@/components/NetworkGraph";
 
 const NetworkGraph = lazy(() => import("@/components/NetworkGraph"));
@@ -39,24 +39,40 @@ export default function Home() {
   const [view, setView] = useState<View>("graph");
   const [graphSelected, setGraphSelected] = useState<SelectedNode | null>(null);
 
-  const bands = [...new Set(DATA.map((d) => d.band))];
+  // Canonical (de-duplicated) band names for filter chips
+  const bands = [...new Set(DATA.map((d) => normalizeBandName(d.band).name))];
 
   const filtered = DATA.filter((d) => {
-    const matchesBand = selectedBand ? d.band === selectedBand : true;
+    const canonicalBand = normalizeBandName(d.band).name;
+    const matchesBand = selectedBand ? canonicalBand === selectedBand : true;
     const matchesSearch =
       search === "" ||
       d.member.toLowerCase().includes(search.toLowerCase()) ||
       d.role.toLowerCase().includes(search.toLowerCase()) ||
-      d.band.toLowerCase().includes(search.toLowerCase());
+      canonicalBand.toLowerCase().includes(search.toLowerCase());
     return matchesBand && matchesSearch;
   });
 
+  // Cards: group by canonical band, deduplicate members (merge roles + formation notes)
   const groupedByBand = bands
     .filter((b) => !selectedBand || b === selectedBand)
-    .map((band) => ({ band, members: filtered.filter((d) => d.band === band) }))
-    .filter((g) => g.members.length > 0);
+    .map((band) => {
+      const bandRows = filtered.filter((d) => normalizeBandName(d.band).name === band);
+      const memberMap = new Map<string, { role: string; note: string | null }>();
+      bandRows.forEach(({ member, role, band: rawBand }) => {
+        const { note } = normalizeBandName(rawBand);
+        if (!memberMap.has(member)) {
+          memberMap.set(member, { role, note });
+        } else {
+          const e = memberMap.get(member)!;
+          if (!e.role.includes(role)) e.role += ` / ${role}`;
+          if (note && !e.note?.includes(note)) e.note = e.note ? `${e.note} · ${note}` : note;
+        }
+      });
+      return { band, memberMap, context: bandRows[0]?.context };
+    })
+    .filter((g) => g.memberMap.size > 0);
 
-  // Clicking a band filter chip also selects it in the graph
   const handleBandFilter = (band: string | null) => {
     setSelectedBand(band === selectedBand ? null : band);
     setGraphSelected(band && band !== selectedBand ? { type: "band", id: band } : null);
@@ -139,14 +155,12 @@ export default function Home() {
                 selected={graphSelected}
                 onSelect={(node) => {
                   setGraphSelected(node);
-                  // sync band filter chip when a band node is clicked
                   if (node?.type === "band") setSelectedBand(node.id);
                   else if (!node) setSelectedBand(null);
                 }}
               />
             </Suspense>
 
-            {/* Detail panel slides in over the graph */}
             <AnimatePresence>
               {graphSelected && (
                 <Suspense fallback={null}>
@@ -172,7 +186,7 @@ export default function Home() {
             transition={{ duration: 0.2 }}
           >
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-              {groupedByBand.map(({ band, members }) => (
+              {groupedByBand.map(({ band, memberMap, context }) => (
                 <Card
                   key={band}
                   className="cursor-pointer hover:shadow-md transition-shadow"
@@ -180,17 +194,22 @@ export default function Home() {
                 >
                   <CardHeader className="pb-3">
                     <CardTitle className="text-base">{band}</CardTitle>
-                    <CardDescription className="text-xs">{members[0]?.context}</CardDescription>
+                    <CardDescription className="text-xs">{context}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-1.5">
-                    {members.map((m, i) => (
-                      <div key={i} className="flex items-start justify-between gap-2">
-                        <span className="text-sm font-medium leading-snug">{m.member}</span>
+                    {[...memberMap.entries()].map(([member, { role, note }]) => (
+                      <div key={member} className="flex items-start justify-between gap-2">
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-sm font-medium leading-snug truncate">{member}</span>
+                          {note && (
+                            <span className="text-xs text-muted-foreground italic">{note}</span>
+                          )}
+                        </div>
                         <Badge
                           className={`text-xs shrink-0 ${BAND_COLORS[band] ?? "bg-gray-100 text-gray-800"}`}
                           variant="outline"
                         >
-                          {m.role}
+                          {role}
                         </Badge>
                       </div>
                     ))}
