@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import {
   ReactFlow,
   Background,
@@ -15,6 +15,7 @@ import {
   Panel,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import dagre from "@dagrejs/dagre";
 import { DATA } from "@/lib/data";
 
 const BAND_COLORS = [
@@ -33,6 +34,47 @@ interface Props {
   onSelect?: (node: SelectedNode | null) => void;
 }
 
+const BAND_W = 160;
+const BAND_H = 44;
+const MEMBER_W = 140;
+const MEMBER_H = 32;
+
+function getLayout(
+  bands: string[],
+  memberBands: Map<string, string[]>
+): Map<string, { x: number; y: number }> {
+  const g = new dagre.graphlib.Graph({ multigraph: false });
+  g.setGraph({
+    rankdir: "LR",
+    ranksep: 220,   // horizontal space between band and member columns
+    nodesep: 28,    // vertical space between nodes in the same column
+    marginx: 60,
+    marginy: 60,
+  });
+  g.setDefaultEdgeLabel(() => ({}));
+
+  bands.forEach((band) => {
+    g.setNode(`band::${band}`, { width: BAND_W, height: BAND_H });
+  });
+
+  [...memberBands.entries()].forEach(([member]) => {
+    g.setNode(`member::${member}`, { width: MEMBER_W, height: MEMBER_H });
+  });
+
+  DATA.forEach(({ band, member }) => {
+    g.setEdge(`member::${member}`, `band::${band}`);
+  });
+
+  dagre.layout(g);
+
+  const positions = new Map<string, { x: number; y: number }>();
+  g.nodes().forEach((id) => {
+    const n = g.node(id);
+    positions.set(id, { x: n.x - n.width / 2, y: n.y - n.height / 2 });
+  });
+  return positions;
+}
+
 function buildGraph(highlight?: string, selected?: SelectedNode | null) {
   const bands = [...new Set(DATA.map((d) => d.band))];
   const bandColor = new Map(bands.map((b, i) => [b, BAND_COLORS[i % BAND_COLORS.length]]));
@@ -43,7 +85,6 @@ function buildGraph(highlight?: string, selected?: SelectedNode | null) {
     memberBands.get(member)!.push(band);
   });
 
-  // Determine which nodes are "active" (connected to selection)
   const activeBands = new Set<string>();
   const activeMembers = new Set<string>();
 
@@ -63,47 +104,48 @@ function buildGraph(highlight?: string, selected?: SelectedNode | null) {
     return type === "band" ? activeBands.has(id) : activeMembers.has(id);
   };
 
-  const bandNodes = bands.map((band, i) => {
-    const angle = (2 * Math.PI * i) / bands.length;
-    const r = 380;
+  const positions = getLayout(bands, memberBands);
+
+  const bandNodes = bands.map((band) => {
     const color = bandColor.get(band)!;
     const lit = isLit("band", band);
     const isSel = selected?.type === "band" && selected.id === band;
+    const pos = positions.get(`band::${band}`) ?? { x: 0, y: 0 };
     return {
       id: `band::${band}`,
-      position: { x: 500 + r * Math.cos(angle), y: 400 + r * Math.sin(angle) },
+      position: pos,
       data: { label: band },
       style: {
         background: lit ? color : "#e2e8f0",
         color: lit ? "#fff" : "#94a3b8",
         border: isSel ? `3px solid #fff` : "none",
         borderRadius: 10,
-        padding: "8px 14px",
+        padding: "8px 16px",
         fontWeight: 700,
         fontSize: 12,
         opacity: lit ? 1 : 0.25,
         boxShadow: isSel
-          ? `0 0 0 4px ${color}, 0 4px 16px rgba(0,0,0,0.2)`
+          ? `0 0 0 4px ${color}, 0 4px 20px rgba(0,0,0,0.2)`
           : "0 2px 8px rgba(0,0,0,0.1)",
-        minWidth: 120,
+        width: BAND_W,
         textAlign: "center" as const,
         cursor: "pointer",
         transition: "all 0.15s",
+        whiteSpace: "nowrap" as const,
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
     };
   });
 
   const memberNodes = [...memberBands.entries()].map(([member, mBands]) => {
-    const primaryBand = mBands[0];
-    const bNode = bandNodes.find((n) => n.id === `band::${primaryBand}`);
     const isMulti = mBands.length > 1;
     const lit = isLit("member", member);
     const isSel = selected?.type === "member" && selected.id === member;
-    const x = (bNode?.position.x ?? 500) + (Math.random() * 100 - 50);
-    const y = (bNode?.position.y ?? 400) + (Math.random() * 100 - 50);
+    const pos = positions.get(`member::${member}`) ?? { x: 0, y: 0 };
     return {
       id: `member::${member}`,
-      position: { x, y },
+      position: pos,
       data: { label: member },
       style: {
         background: lit ? (isMulti ? "#1e293b" : "#f8fafc") : "#f1f5f9",
@@ -114,13 +156,16 @@ function buildGraph(highlight?: string, selected?: SelectedNode | null) {
           ? "2px solid #6366f1"
           : "1.5px solid #cbd5e1",
         borderRadius: 20,
-        padding: "4px 10px",
-        fontSize: 10,
+        padding: "4px 12px",
+        fontSize: 11,
         opacity: lit ? 1 : 0.2,
         boxShadow: isSel ? "0 0 0 3px #6366f166" : isMulti ? "0 0 0 2px #6366f122" : "none",
         whiteSpace: "nowrap" as const,
         cursor: "pointer",
         transition: "all 0.15s",
+        width: MEMBER_W,
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
     };
   });
@@ -140,9 +185,13 @@ function buildGraph(highlight?: string, selected?: SelectedNode | null) {
       source: `member::${member}`,
       target: `band::${band}`,
       label: role,
-      style: { stroke: lit ? color : "#e2e8f0", strokeWidth: lit ? 2 : 1, opacity: lit ? 0.8 : 0.2 },
-      labelStyle: { fontSize: 8, fill: "#64748b" },
-      labelBgStyle: { fill: "#fff", fillOpacity: 0.8 },
+      style: {
+        stroke: lit ? color : "#e2e8f0",
+        strokeWidth: lit ? 2 : 1,
+        opacity: lit ? 0.75 : 0.15,
+      },
+      labelStyle: { fontSize: 9, fill: "#64748b" },
+      labelBgStyle: { fill: "#fff", fillOpacity: 0.85 },
       labelShowBg: lit,
       animated: false,
     };
@@ -188,12 +237,12 @@ export default function NetworkGraph({ highlight, selected, onSelect }: Props) {
       onNodeClick={handleNodeClick}
       onPaneClick={() => onSelect?.(null)}
       fitView
-      fitViewOptions={{ padding: 0.15 }}
-      minZoom={0.1}
+      fitViewOptions={{ padding: 0.12 }}
+      minZoom={0.05}
       maxZoom={3}
       attributionPosition="bottom-right"
     >
-      <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#e2e8f0" />
+      <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#e2e8f0" />
       <Controls />
       <MiniMap
         nodeColor={(n) => {
@@ -201,6 +250,7 @@ export default function NetworkGraph({ highlight, selected, onSelect }: Props) {
           return typeof s?.background === "string" ? s.background : "#94a3b8";
         }}
         maskColor="rgba(255,255,255,0.7)"
+        style={{ width: 140, height: 90 }}
       />
       <Panel position="bottom-left">
         <div className="flex gap-4 text-xs text-slate-500 bg-white/80 backdrop-blur px-3 py-2 rounded-lg border border-slate-200 shadow-sm">
