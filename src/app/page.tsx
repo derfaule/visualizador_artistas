@@ -7,8 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { DATA } from "@/lib/data";
+import type { SelectedNode } from "@/components/NetworkGraph";
 
 const NetworkGraph = lazy(() => import("@/components/NetworkGraph"));
+const DetailPanel = lazy(() => import("@/components/DetailPanel"));
 
 const BAND_COLORS: Record<string, string> = {
   "Lira Unión": "bg-indigo-100 text-indigo-800 border-indigo-200",
@@ -35,6 +37,7 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [selectedBand, setSelectedBand] = useState<string | null>(null);
   const [view, setView] = useState<View>("graph");
+  const [graphSelected, setGraphSelected] = useState<SelectedNode | null>(null);
 
   const bands = [...new Set(DATA.map((d) => d.band))];
 
@@ -53,6 +56,12 @@ export default function Home() {
     .map((band) => ({ band, members: filtered.filter((d) => d.band === band) }))
     .filter((g) => g.members.length > 0);
 
+  // Clicking a band filter chip also selects it in the graph
+  const handleBandFilter = (band: string | null) => {
+    setSelectedBand(band === selectedBand ? null : band);
+    setGraphSelected(band && band !== selectedBand ? { type: "band", id: band } : null);
+  };
+
   return (
     <main className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header */}
@@ -61,8 +70,6 @@ export default function Home() {
           <h1 className="text-2xl font-bold tracking-tight">Visualizador de Artistas</h1>
           <p className="text-muted-foreground text-sm">Colombian music bands · members · instruments</p>
         </div>
-
-        {/* View toggle */}
         <div className="flex gap-2">
           <Button
             variant={view === "graph" ? "default" : "outline"}
@@ -86,13 +93,16 @@ export default function Home() {
         <Input
           placeholder="Search members, roles, bands…"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setGraphSelected(null);
+          }}
           className="max-w-xs h-8 text-sm"
         />
         <Button
           variant={selectedBand === null ? "default" : "outline"}
           size="sm"
-          onClick={() => setSelectedBand(null)}
+          onClick={() => { setSelectedBand(null); setGraphSelected(null); }}
         >
           All
         </Button>
@@ -101,7 +111,7 @@ export default function Home() {
             key={band}
             variant={selectedBand === band ? "default" : "outline"}
             size="sm"
-            onClick={() => setSelectedBand(band === selectedBand ? null : band)}
+            onClick={() => handleBandFilter(band)}
           >
             {band}
           </Button>
@@ -113,15 +123,44 @@ export default function Home() {
         {view === "graph" ? (
           <motion.div
             key="graph"
-            className="flex-1 overflow-hidden"
+            className="flex-1 overflow-hidden relative"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <Suspense fallback={<div className="flex items-center justify-center h-full text-muted-foreground">Loading graph…</div>}>
-              <NetworkGraph highlight={search || selectedBand || undefined} />
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                Loading graph…
+              </div>
+            }>
+              <NetworkGraph
+                highlight={search || undefined}
+                selected={graphSelected}
+                onSelect={(node) => {
+                  setGraphSelected(node);
+                  // sync band filter chip when a band node is clicked
+                  if (node?.type === "band") setSelectedBand(node.id);
+                  else if (!node) setSelectedBand(null);
+                }}
+              />
             </Suspense>
+
+            {/* Detail panel slides in over the graph */}
+            <AnimatePresence>
+              {graphSelected && (
+                <Suspense fallback={null}>
+                  <DetailPanel
+                    selected={graphSelected}
+                    onClose={() => { setGraphSelected(null); setSelectedBand(null); }}
+                    onSelect={(node) => {
+                      setGraphSelected(node);
+                      if (node.type === "band") setSelectedBand(node.id);
+                    }}
+                  />
+                </Suspense>
+              )}
+            </AnimatePresence>
           </motion.div>
         ) : (
           <motion.div
@@ -134,7 +173,11 @@ export default function Home() {
           >
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
               {groupedByBand.map(({ band, members }) => (
-                <Card key={band}>
+                <Card
+                  key={band}
+                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => handleBandFilter(band)}
+                >
                   <CardHeader className="pb-3">
                     <CardTitle className="text-base">{band}</CardTitle>
                     <CardDescription className="text-xs">{members[0]?.context}</CardDescription>
@@ -155,7 +198,9 @@ export default function Home() {
                 </Card>
               ))}
               {groupedByBand.length === 0 && (
-                <p className="col-span-full text-center text-muted-foreground py-12">No results found.</p>
+                <p className="col-span-full text-center text-muted-foreground py-12">
+                  No results found.
+                </p>
               )}
             </div>
           </motion.div>
