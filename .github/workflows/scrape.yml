@@ -19,6 +19,7 @@ jobs:
 
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -40,11 +41,25 @@ jobs:
             npm run scrape:bands
           fi
 
-      - name: Commit results
+      - name: Open review PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          BRANCH="scrape/$(date +%Y%m%d-%H%M)"
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
           git add src/lib/scraped.json
-          git diff --staged --quiet && echo "No changes to commit" || \
-            git commit -m "chore: update scraped data (${GITHUB_RUN_ID})"
-          git push
+          if git diff --staged --quiet; then
+            echo "No new data — nothing to review."
+          else
+            git commit -m "chore: scraped data (${{ inputs.mode }}, run ${GITHUB_RUN_ID})"
+            git push origin "$BRANCH"
+            gh pr create \
+              --title "Review scraped data (${{ inputs.mode }})" \
+              --body "Triggered by workflow run [${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}).
+
+Review the \`src/lib/scraped.json\` diff below, then merge when it looks good." \
+              --base claude/visualize-band-data-A8Vrt \
+              --head "$BRANCH"
+          fi
