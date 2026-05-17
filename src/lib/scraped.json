@@ -1,1 +1,857 @@
-{}
+{
+  "Lira Unión": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "c4cc2564-afdf-4c62-86b3-68a49ac42ec1",
+      "type": "Group",
+      "country": "ES",
+      "area": "Spain",
+      "beginDate": "1982",
+      "endDate": null,
+      "genres": [
+        "new wave",
+        "pop rock"
+      ],
+      "tags": [
+        "new wave",
+        "pop rock"
+      ],
+      "aliases": [
+        "La Union",
+        "La Union en Concierto",
+        "La Unión"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "El Himno nacional de la República de Colombia es la composición musical patriótica que representa al país y que, junto con la bandera y el escudo, tiene la categoría de símbolo patrio.​\nLa letra del himno está compuesta por un coro y once estrofas, y fue escrita por el presidente Rafael Núñez originalmente como una obra para celebrar la independencia de Cartagena.​  \nLa música fue compuesta por el italiano Oreste Síndici,​ en el municipio de Nilo, Cundinamarca, por lo que el pueblo es conocido c",
+    "scraped_at": "2026-05-17T22:20:37.761Z"
+  },
+  "Jazz Nicolás": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "1a5fcb2e-70d9-4d72-a9d0-cba59e7a6f47",
+      "type": null,
+      "country": null,
+      "area": null,
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "La música de Argentina, por su vasta extensión territorial y diversidad demográfica, presenta una notable variedad cultural.​ Entre sus expresiones musicales más destacadas se encuentran el tango, la música folklórica, el rock nacional, el bolero, la balada romántica, la cumbia, el cuarteto, la electrónica, así como la música y el ballet clásicos.\nEl tango es un estilo musical y un baile nacido en los arrabales porteños y montevideanos, con difusión internacional, que tiene como máximos exponent",
+    "scraped_at": "2026-05-17T22:20:41.014Z"
+  },
+  "Orquesta de Jorge Marín Vieco": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "09b1a865-9271-4b5a-9732-1dc8c6c8ae46",
+      "type": "Orchestra",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "2003-12",
+      "endDate": "2002",
+      "genres": [
+        "symphony"
+      ],
+      "tags": [
+        "symphony"
+      ],
+      "aliases": [
+        "Orquesta Sinfónica de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Jorge Marín Vieco (Medellín, Colombia, 1910-1976). Uno de los escultores figurativos más importantes de la historia del arte en Colombia. Estéticamente fue puente entre la escultura tradicional y el modernismo. Entre sus obras más conocidas están Hombre en Busca de la Paz en el Cementerio Campos de Paz de Medellín, y \"Amerindia\", localizada en el edificio de la Beneficencia de Antioquia. Esta obra es parte de un conjunto escultórico de 200 m² en relieve en concreto con motivos indigenistas y soc",
+    "scraped_at": "2026-05-17T22:20:44.188Z"
+  },
+  "Orquesta de Gonzalo Vidal": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "09b1a865-9271-4b5a-9732-1dc8c6c8ae46",
+      "type": "Orchestra",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "2003-12",
+      "endDate": "2002",
+      "genres": [
+        "symphony"
+      ],
+      "tags": [
+        "symphony"
+      ],
+      "aliases": [
+        "Orquesta Sinfónica de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Gustavo Yepes Londoño (Yarumal, Antioquia, 19 de noviembre de 1945) es un director de orquesta, pianista, compositor, musicólogo y docente como uno de los más importantes músicos académicos vigentes en Colombia.",
+    "scraped_at": "2026-05-17T22:20:47.406Z"
+  },
+  "Juan Manuel y sus Vagabundos": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "0cc50651-74ab-4e35-8a38-57b56daca409",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "1962",
+      "endDate": null,
+      "genres": [
+        "latin"
+      ],
+      "tags": [
+        "latin"
+      ],
+      "aliases": [
+        "Juan Piña Y su Muchachos"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Manuel Zapata Olivella (Lorica, 17 de marzo de 1920 - Bogotá, 19 de noviembre de 2004) fue un médico, antropólogo y escritor colombiano. \nEs considerado uno de los más importantes representantes de la cultura afrocolombiana por su trabajo por divulgarla, registrarla y preservarla en forma de literatura, investigaciones sociales, artículos de prensa, eventos académicos, programas de televisión y radio.​ Publicó ocho novelas, tres relatos de viajes, una autobiografía, y cientos de ensayos, artícul",
+    "scraped_at": "2026-05-17T22:20:50.653Z"
+  },
+  "Orquesta Tropical": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "09b1a865-9271-4b5a-9732-1dc8c6c8ae46",
+      "type": "Orchestra",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "2003-12",
+      "endDate": "2002",
+      "genres": [
+        "symphony"
+      ],
+      "tags": [
+        "symphony"
+      ],
+      "aliases": [
+        "Orquesta Sinfónica de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": null,
+    "scraped_at": "2026-05-17T22:20:53.685Z"
+  },
+  "Orquesta Swing Stars": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "09b1a865-9271-4b5a-9732-1dc8c6c8ae46",
+      "type": "Orchestra",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "2003-12",
+      "endDate": "2002",
+      "genres": [
+        "symphony"
+      ],
+      "tags": [
+        "symphony"
+      ],
+      "aliases": [
+        "Orquesta Sinfónica de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": null,
+    "scraped_at": "2026-05-17T22:20:56.739Z"
+  },
+  "Orquesta Rítmica": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "09b1a865-9271-4b5a-9732-1dc8c6c8ae46",
+      "type": "Orchestra",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "2003-12",
+      "endDate": "2002",
+      "genres": [
+        "symphony"
+      ],
+      "tags": [
+        "symphony"
+      ],
+      "aliases": [
+        "Orquesta Sinfónica de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": null,
+    "scraped_at": "2026-05-17T22:20:59.755Z"
+  },
+  "Los Estudiantes": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "0133ec78-76ef-4732-8acf-2f27c666ba6d",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": "Colombian cumbia band"
+    },
+    "wikipedia_summary": "La música de El Salvador se refiere a las diferentes manifestaciones musicales de la República de El Salvador, la que a su vez está englobada en las tradiciones musicales latinoamericanas más amplias.​​​\nEl Salvador es un país de América Central, cuya cultura es en principio una mezcla de etnias indígenas (Nahuas-Pipiles, Lencas y Cacaoperas), europeos (principalmente españoles), y africanos (diferentes grupos étnicos traídos como esclavos durante la época colonial); a lo que se le han sumado ot",
+    "scraped_at": "2026-05-17T22:21:22.984Z"
+  },
+  "Orquesta de Adolfo Moncada": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "09b1a865-9271-4b5a-9732-1dc8c6c8ae46",
+      "type": "Orchestra",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "2003-12",
+      "endDate": "2002",
+      "genres": [
+        "symphony"
+      ],
+      "tags": [
+        "symphony"
+      ],
+      "aliases": [
+        "Orquesta Sinfónica de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "La música clásica de México se refiere a los estilos musicales que se desarrollaron en el territorio mexicano por la influencia de la música académica europea desde el periodo virreinal hasta el siglo XXI.",
+    "scraped_at": "2026-05-17T22:21:48.967Z"
+  },
+  "Orquesta Medellín": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "09b1a865-9271-4b5a-9732-1dc8c6c8ae46",
+      "type": "Orchestra",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "2003-12",
+      "endDate": "2002",
+      "genres": [
+        "symphony"
+      ],
+      "tags": [
+        "symphony"
+      ],
+      "aliases": [
+        "Orquesta Sinfónica de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "La Orquesta Filarmónica de Medellín es una orquesta sinfónica profesional con sede en la ciudad de Medellín y una de las 4 orquestas profesionales existentes en Colombia. Fue fundada el 16 de abril de 1983 por su director emérito Alberto Correa Cadavid y por el Estudio Polifónico de Medellín, con el objetivo de estudiar y divulgar la música sinfónica y coral-sinfónica en la ciudad. La orquesta se fundó con el objetivo principal de acompañar al coro del Estudio Polifónico de Medellín, también fun",
+    "scraped_at": "2026-05-17T22:21:52.135Z"
+  },
+  "Los Ases del Ritmo": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "76b1d56c-039d-485d-94b0-bebca4202930",
+      "type": null,
+      "country": null,
+      "area": null,
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Antonio Camargo Carrasco, más conocido como Tony Camargo (Guadalajara, 1 de junio de 1926 - Mérida, 5 de agosto de 2020),​ fue un cantante mexicano considerado uno de los íconos de la música típica.​",
+    "scraped_at": "2026-05-17T22:21:55.339Z"
+  },
+  "Los Chivíricos": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "f35d10ad-bb76-49db-89a8-4e3bfa29806a",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [
+        "latin"
+      ],
+      "tags": [
+        "latin"
+      ],
+      "aliases": [
+        "Los Ocho de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Ángel Luis Canales (Santurce, 29 de junio de 1950) es un cantante puertorriqueño de salsa, radicado en Nueva York. Entre sus éxitos destacan: «Nostalgia», «Sol de mi vida», «Perico Macoña», «Lejos de ti», «Hace tiempo», «El Cantante y la Orquesta», «Sabor Los Rumberos Nuevos», «Bomba Carambomba» y su célebre versión del bolero «Dos Gardenias».",
+    "scraped_at": "2026-05-17T22:21:58.547Z"
+  },
+  "Orquesta Antillana Club": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "2d308ddd-f895-4401-be72-ca9736cb60d3",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": "Colombian cumbia band"
+    },
+    "wikipedia_summary": "La orquesta Los Melódicos es una agrupación musical venezolana de música caribeña fundada en 1958 por Renato Capriles, director musical, con apoyo del director dominicano-venezolano Billo Frómeta a consecuencia de la disolución momentánea de la orquesta Billo's Happy Boys fundada en 1938.\nAl igual que la mayoría de orquestas tipo banda, Los Melódicos consta de cinco saxofones, dos trombones, tres trompetas, bajo, piano, y la percusión correspondiente, de congas, bongó, güiro, maracas y timbales.",
+    "scraped_at": "2026-05-17T22:22:31.521Z"
+  },
+  "Sexteto Miramar": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "9115da49-5c92-495c-ac5c-ed70162a07e3",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "1965",
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Marco Tulio Aicardi Rivera (Magangué, Bolívar; 23 de mayo de 1946 - Medellín, Antioquia; 24 de octubre de 2007), más conocido artísticamente como Rodolfo Aicardi o simplemente Rodolfo, fue un cantautor colombiano-italiano de música tropical como la cumbia y el merengue, también incursionó en los géneros de bolero y romántica. Es considerado «El Rey de los Diciembres».​\nAdemás de vocalista, los instrumentos que dominaba eran: bajo, guitarra, guitarra de doce cuerdas, requinto, teclado electrónico",
+    "scraped_at": "2026-05-17T22:22:34.738Z"
+  },
+  "Orquesta de Tita Duval": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "09b1a865-9271-4b5a-9732-1dc8c6c8ae46",
+      "type": "Orchestra",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "2003-12",
+      "endDate": "2002",
+      "genres": [
+        "symphony"
+      ],
+      "tags": [
+        "symphony"
+      ],
+      "aliases": [
+        "Orquesta Sinfónica de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": null,
+    "scraped_at": "2026-05-17T22:22:38.074Z"
+  },
+  "Los Falcons": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "2f50b4fc-7aa0-48f9-9eb7-9cc93d4bf650",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Atlanta es la capital y ciudad más extensa y poblada del estado de Georgia y la trigésimo tercera en Estados Unidos en cantidad de habitantes en 2008. Tiene una población estimada de 537 958 habitantes. Su área metropolitana, cuyo nombre oficial es Atlanta-Sandy Springs-Marietta, GA MSA (conocida comúnmente como Atlanta Metropolitana), es la octava área metropolitana con mayor población del país, con aproximadamente 6,2 millones de habitantes. Como en la mayor parte del Cinturón del Sol, la regi",
+    "scraped_at": "2026-05-17T22:23:15.038Z"
+  },
+  "Orquesta de Ricaurte Arias": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "36522185-8049-43b1-921c-e31217688969",
+      "type": "Person",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "1930",
+      "endDate": null,
+      "genres": [
+        "cumbia",
+        "latin"
+      ],
+      "tags": [
+        "cumbia",
+        "latin"
+      ],
+      "aliases": [
+        "Orquesta De Edmundo Arias"
+      ],
+      "disambiguation": "Colombian composer, arranger, conductor and guitar player"
+    },
+    "wikipedia_summary": "El Panama Jazz Festival es un festival de música de jazz que se celebra anualmente​ en Panamá. Fue fundado en septiembre de 2003 por Danilo Pérez, músico panameño ganador del Grammy.",
+    "scraped_at": "2026-05-17T22:23:18.306Z"
+  },
+  "Trío Los Caribeños": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "88d6d713-188b-4716-a284-e8ab24a2e509",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": "Guitar trío from Colombia"
+    },
+    "wikipedia_summary": "Frank Guzmán Géigel (San Juan, 20 de noviembre de 1939-Toa Baja, Puerto Rico, 9 de diciembre de 2021)​ fue un cantante puertorriqueño y uno de los máximos exponentes mundiales de la salsa romántica. A lo largo de su extensa carrera grabó más de una veintena de discos, gozando de un gran éxito en toda Hispanoamérica.",
+    "scraped_at": "2026-05-17T22:23:21.518Z"
+  },
+  "Fantasio Grill": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "e5a006a7-cf6a-4009-a8f4-7df4acaa75ef",
+      "type": null,
+      "country": null,
+      "area": null,
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Gustavo de Jesús Quintero Morales (Rionegro, 23 de diciembre de 1939-Medellín, 18 de diciembre de 2016)​ fue un cantautor colombiano.",
+    "scraped_at": "2026-05-17T22:24:04.873Z"
+  },
+  "Orquesta de Joimer y sus Estrellas": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "09b1a865-9271-4b5a-9732-1dc8c6c8ae46",
+      "type": "Orchestra",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "2003-12",
+      "endDate": "2002",
+      "genres": [
+        "symphony"
+      ],
+      "tags": [
+        "symphony"
+      ],
+      "aliases": [
+        "Orquesta Sinfónica de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": null,
+    "scraped_at": "2026-05-17T22:24:08.268Z"
+  },
+  "Daniel Santos Sonora": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "16003d9d-1dc2-40ad-a48e-44e25f225bc7",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": "Colombia"
+    },
+    "wikipedia_summary": "Daniel Doroteo de los Santos Betancourt (San Juan, 6 de junio de 1916-Ocala, Florida, 27 de noviembre de 1992), más conocido artísticamente como Daniel Santos, fue un cantautor, músico y director de orquesta puertorriqueñoestadounidense, considerado como uno de los grandes intérpretes de géneros tropicales como guaracha, guajira, mambo, salsa, bomba y plena. Se le conocía como el Jefe y el Inquieto Anacobero.​",
+    "scraped_at": "2026-05-17T22:24:11.556Z"
+  },
+  "Las Hermanas Rendón": {
+    "kind": "band",
+    "error": "fetch failed",
+    "scraped_at": "2026-05-17T22:24:52.915Z"
+  },
+  "Las Serranitas": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "e145ef71-75cd-4b92-abe4-f0609708fd22",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [
+        "Martha y Margarita"
+      ],
+      "disambiguation": "Duo from Colombia"
+    },
+    "wikipedia_summary": "Ragonvalia es un municipio colombiano situado en el departamento de Norte de Santander, al nor-oriente del país. Hace parte de la región andina y de la región de los Santanderes, fronteriza con el Estado Táchira de Venezuela. Está ubicado a 72 km de la capital departamental, Cúcuta. Es el tercer municipio en territorio más pequeño del departamento. Tiene bajo su jurisdicción un centro poblado llamado Caliche, ubicada en las vereda Honda Norte y el centro poblado El Oasis, ubicado en la vereda Ca",
+    "scraped_at": "2026-05-17T22:24:56.428Z"
+  },
+  "Orquesta de Alcides Lerzundy": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "09b1a865-9271-4b5a-9732-1dc8c6c8ae46",
+      "type": "Orchestra",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "2003-12",
+      "endDate": "2002",
+      "genres": [
+        "symphony"
+      ],
+      "tags": [
+        "symphony"
+      ],
+      "aliases": [
+        "Orquesta Sinfónica de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": null,
+    "scraped_at": "2026-05-17T22:24:59.718Z"
+  },
+  "Los Caballeros del Ritmo": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "7a4881b3-bdee-4613-9c90-7017bd63c167",
+      "type": null,
+      "country": null,
+      "area": null,
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "La salsa es un término utilizado para referirse al conjunto de géneros musicales bailables resultantes de la síntesis de ritmos cubanos como el son cubano, el guaguancó, la guajira, el boogaloo, el mambo, el montuno, el chachachá, la guaracha, la descarga, con los géneros puertorriqueños de la plena y la bomba, y los géneros afroamericanos del jazz y el blues. En gran parte inspirada en las composiciones de músicos y cantantes cubanos, como Arsenio Rodríguez, Conjunto Chappotín, Machito, Roberto",
+    "scraped_at": "2026-05-17T22:25:03.082Z"
+  },
+  "Cataño y sus Cometas": {
+    "kind": "band",
+    "error": "fetch failed",
+    "scraped_at": "2026-05-17T22:25:43.181Z"
+  },
+  "Los Corraleros de Majagual": {
+    "kind": "band",
+    "error": "fetch failed",
+    "scraped_at": "2026-05-17T22:26:23.734Z"
+  },
+  "Los Ídolos": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "4a58652f-635a-413a-be42-42f02e2fc61b",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": "Colombian cumbia group"
+    },
+    "wikipedia_summary": "Marco Tulio Aicardi Rivera (Magangué, Bolívar; 23 de mayo de 1946 - Medellín, Antioquia; 24 de octubre de 2007), más conocido artísticamente como Rodolfo Aicardi o simplemente Rodolfo, fue un cantautor colombiano-italiano de música tropical como la cumbia y el merengue, también incursionó en los géneros de bolero y romántica. Es considerado «El Rey de los Diciembres».​\nAdemás de vocalista, los instrumentos que dominaba eran: bajo, guitarra, guitarra de doce cuerdas, requinto, teclado electrónico",
+    "scraped_at": "2026-05-17T22:26:27.268Z"
+  },
+  "Sexteto Intercontinental": {
+    "kind": "band",
+    "error": "fetch failed",
+    "scraped_at": "2026-05-17T22:27:07.365Z"
+  },
+  "Los Profetas": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "514c4e1f-7e9e-48ac-85d3-aaa42f0af588",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Germán Borda (1935, Bogotá) es un  compositor, escritor, crítico, profesor y comentarista musical colombiano.",
+    "scraped_at": "2026-05-17T22:27:10.907Z"
+  },
+  "El Combo de las Estrellas": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "80ed242a-371d-4f6d-83ec-d059e7c6c0f0",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [
+        "cumbia",
+        "cumbia colombiana",
+        "latin"
+      ],
+      "tags": [
+        "cumbia",
+        "cumbia colombiana",
+        "latin"
+      ],
+      "aliases": [],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Juaneco y su Combo es un grupo amazónico de cumbia peruana, formada en Pucallpa en 1966 por Juan Wong Paredes.\nReconocidos como pioneros del género, fusionaron ritmos tropicales con guitarras psicodélicas, destacando éxitos como \"Mujer Hilandera\" y \"Ya se ha muerto mi abuelo\".",
+    "scraped_at": "2026-05-17T22:27:14.229Z"
+  },
+  "Los Hermanos Martelo": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "b4514bae-68d1-4b15-a7ae-0ff65cd512a0",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "1969",
+      "endDate": "1980",
+      "genres": [],
+      "tags": [],
+      "aliases": [
+        "Hermanos Martelos"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Julio Pedro Harispe (14 de mayo de 1923, Buenos Aires, Argentina - 19 de febrero de 2009, Buenos Aires, Argentina), fue un cantante argentino de tango. Formó parte de la Orquesta del famoso músico de tango Alfredo De Angelis.",
+    "scraped_at": "2026-05-17T22:27:17.476Z"
+  },
+  "Los Martelo Juniors": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "b4514bae-68d1-4b15-a7ae-0ff65cd512a0",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "1969",
+      "endDate": "1980",
+      "genres": [],
+      "tags": [],
+      "aliases": [
+        "Hermanos Martelos"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "El 1 de julio es el 182.º (centésimo octogésimo segundo) día del año en el calendario gregoriano y el 183.º en los años bisiestos, el primero del segundo semestre (julio-diciembre) de cada año. Quedan 183 días para finalizar el año.\nEste día es el punto medio de un año bisiesto, ya que este día es el 183.º, quedando la misma suma de días restantes en el año.",
+    "scraped_at": "2026-05-17T22:27:20.773Z"
+  },
+  "Los Claves": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "f35d10ad-bb76-49db-89a8-4e3bfa29806a",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [
+        "latin"
+      ],
+      "tags": [
+        "latin"
+      ],
+      "aliases": [
+        "Los Ocho de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Orquesta Guayacán —citada a veces como Guayacán Orquesta— es una orquesta de salsa colombiana, fundada en Bogotá, Colombia radicada en Cali. Es dirigida musicalmente por Alexis Lozano, arreglista y productor, quien además ejecuta varios instrumentos musicales de la familia de las cuerdas y de viento. Las composiciones más exitosas de la agrupación son de Nino Caicedo.​",
+    "scraped_at": "2026-05-17T22:27:24.006Z"
+  },
+  "New Stars Club": {
+    "kind": "band",
+    "error": "fetch failed",
+    "scraped_at": "2026-05-17T22:28:04.102Z"
+  },
+  "Los Superiores": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "f35d10ad-bb76-49db-89a8-4e3bfa29806a",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [
+        "latin"
+      ],
+      "tags": [
+        "latin"
+      ],
+      "aliases": [
+        "Los Ocho de Colombia"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "La Orquesta Sinfónica Venezuela (conocida también como Orquesta Sinfónica de Venezuela y OSV) es una de las orquestas más importantes de Venezuela. Fue fundada por Vicente Emilio Sojo el 24 de junio de 1930  y es, después de la Orquesta Sinfónica de Boston, la orquesta más antigua del continente americano. Sus directores titulares han sido los maestros Vicente Emilio Sojo, Vicente Martucci, Ángel Sauce, Antonio Estévez, Gonzalo Castellanos Yumar, Georg Schmöhe, Eduardo Marturet y Theodore Kuchar",
+    "scraped_at": "2026-05-17T22:28:07.542Z"
+  },
+  "Los Grecos": {
+    "kind": "band",
+    "error": "fetch failed",
+    "scraped_at": "2026-05-17T22:28:47.640Z"
+  },
+  "Helenita Vargas Recording Group": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "06f095e5-f713-4358-8eeb-3c0ca8be4e60",
+      "type": "Person",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "1934-07-03",
+      "endDate": "2011-02-07",
+      "genres": [],
+      "tags": [],
+      "aliases": [
+        "Sofía Helena Vargas Marulanda"
+      ],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "La ronca de oro (English: The Voice of Freedom), is a Colombian telenovela produced by CMO Producciones for Caracol Televisión. It is based on the life of the Colombian singer Helenita Vargas.\nAna María Estupiñán and Majida Issa star as the protagonists, Diego Cadavid, Greeicy Rendón and Marcela Benjumea as co-protagonists, while Laura García, Leonardo Acosta star as the antagonists.",
+    "scraped_at": "2026-05-17T22:28:51.891Z"
+  },
+  "Guillermo González y su Orquesta / Italian Jazz": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "78fd42e2-3bef-446e-ac20-e807feed3f50",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [
+        "cumbia",
+        "latin"
+      ],
+      "tags": [
+        "cumbia",
+        "latin",
+        "tropical"
+      ],
+      "aliases": [],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Guillermo González Arenas (Manizales, 22 de septiembre de 1923-Medellín, 16 de abril de 2016), fue un compositor, arreglista y director musical colombiano. Sus primeras nociones y orientaciones musicales las recibió de su padre, el maestro Francisco «Pacho» González.",
+    "scraped_at": "2026-05-17T22:28:55.446Z"
+  },
+  "Italian Jazz": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "e43f433b-b174-496e-87c5-5cb678023678",
+      "type": "Orchestra",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "1957",
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": "Colombian orchestra, Cumbia and Porro styles"
+    },
+    "wikipedia_summary": "La música de Argentina, por su vasta extensión territorial y diversidad demográfica, presenta una notable variedad cultural.​ Entre sus expresiones musicales más destacadas se encuentran el tango, la música folklórica, el rock nacional, el bolero, la balada romántica, la cumbia, el cuarteto, la electrónica, así como la música y el ballet clásicos.\nEl tango es un estilo musical y un baile nacido en los arrabales porteños y montevideanos, con difusión internacional, que tiene como máximos exponent",
+    "scraped_at": "2026-05-17T22:28:58.727Z"
+  },
+  "Atlántico Jazz Band": {
+    "kind": "band",
+    "error": "fetch failed",
+    "scraped_at": "2026-05-17T22:29:38.830Z"
+  },
+  "Almendra Tropical": {
+    "kind": "band",
+    "error": "fetch failed",
+    "scraped_at": "2026-05-17T22:30:20.379Z"
+  },
+  "Orquesta Sonolux": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "32e088ec-5ee4-4f60-8106-8fffa2170c65",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "Orquesta Guayacán —citada a veces como Guayacán Orquesta— es una orquesta de salsa colombiana, fundada en Bogotá, Colombia radicada en Cali. Es dirigida musicalmente por Alexis Lozano, arreglista y productor, quien además ejecuta varios instrumentos musicales de la familia de las cuerdas y de viento. Las composiciones más exitosas de la agrupación son de Nino Caicedo.​",
+    "scraped_at": "2026-05-17T22:30:23.811Z"
+  },
+  "Banda Marco Fidel Suárez": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "2e449988-52d5-4c9d-83e4-23b093f77963",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": null,
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "La Banda Sinfónica Universidad de Antioquia fundada en 1954,​ es el conjunto sinfónico más antiguo de la ciudad de Medellín, Colombia, y declarada como Patrimonio Cultural de la Ciudad.​ Es la agrupación oficial de la Universidad de Antioquia, se encuentra adscripta a la Facultad de Artes de dicha Universidad, tiene como sede el Teatro Universitario y es miembro de World Association for Symphonic Bands and Ensembles -WASBE- (Asociación Mundial de Bandas Sinfónicas y Conjuntos).​ La componen 50 m",
+    "scraped_at": "2026-05-17T22:30:27.151Z"
+  },
+  "Los Diplomáticos": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "8c3bc1a3-3d66-451b-93cd-5e3d1e16e3b0",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "1961",
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": "Colombian band aka Los Millonarios"
+    },
+    "wikipedia_summary": "La Universidad Nacional de Música (UNM), anteriormente, hasta 2017, conocida como Conservatorio Nacional de Música, es la institución pública emblemática de la educación musical en el Perú.​ Pertenece al Estado, otorga grados académicos y títulos profesionales en cada una de las especialidades que ofrece.\nLa Universidad Nacional de Música es la primera universidad pública dedicada exclusivamente a la música en Hispanoamérica.",
+    "scraped_at": "2026-05-17T22:30:30.411Z"
+  },
+  "Combo Di Lido": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "f2e33434-ec54-4983-a05b-5b15cb3a3a49",
+      "type": "Person",
+      "country": "NO",
+      "area": "Norway",
+      "beginDate": "1992-10-26",
+      "endDate": null,
+      "genres": [],
+      "tags": [],
+      "aliases": [
+        "Lido",
+        "LidoLido",
+        "Lil’ P",
+        "Peder Losnegård"
+      ],
+      "disambiguation": "Norwegian rapper and producer"
+    },
+    "wikipedia_summary": "El Festival Iberoamericano de Cultura Musical Vive Latino, o simplemente Vive Latino,​ es un festival de diversos géneros musicales alternativos que se realiza anualmente desde 1998 (excepto 1999, 2002 y 2021), en el Foro Sol de la Ciudad de México, organizado por Ocesa, empresa dedicada al espectáculo. A lo largo de su historia se han presentado varios iconos musicales. El festival originalmente era del género rock, aunque en ediciones recientes se ha abierto las puertas a otros géneros, los cu",
+    "scraped_at": "2026-05-17T22:30:33.721Z"
+  },
+  "Los Graduados": {
+    "kind": "band",
+    "error": "fetch failed",
+    "scraped_at": "2026-05-17T22:31:15.052Z"
+  },
+  "Conjunto Miramar": {
+    "kind": "band",
+    "musicbrainz": {
+      "mbid": "c13d3dff-822c-48f7-b709-289dc07d450e",
+      "type": "Group",
+      "country": "CO",
+      "area": "Colombia",
+      "beginDate": "1963",
+      "endDate": "1965",
+      "genres": [],
+      "tags": [],
+      "aliases": [],
+      "disambiguation": ""
+    },
+    "wikipedia_summary": "La música de El Salvador se refiere a las diferentes manifestaciones musicales de la República de El Salvador, la que a su vez está englobada en las tradiciones musicales latinoamericanas más amplias.​​​\nEl Salvador es un país de América Central, cuya cultura es en principio una mezcla de etnias indígenas (Nahuas-Pipiles, Lencas y Cacaoperas), europeos (principalmente españoles), y africanos (diferentes grupos étnicos traídos como esclavos durante la época colonial); a lo que se le han sumado ot",
+    "scraped_at": "2026-05-17T22:31:18.783Z"
+  }
+}
