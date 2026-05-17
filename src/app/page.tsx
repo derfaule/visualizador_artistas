@@ -2,6 +2,7 @@
 
 import { useState, lazy, Suspense } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -38,8 +39,8 @@ export default function Home() {
   const [selectedBand, setSelectedBand] = useState<string | null>(null);
   const [view, setView] = useState<View>("graph");
   const [graphSelected, setGraphSelected] = useState<SelectedNode | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Canonical (de-duplicated) band names for filter chips
   const bands = [...new Set(DATA.map((d) => normalizeBandName(d.band).name))];
 
   const filtered = DATA.filter((d) => {
@@ -53,7 +54,6 @@ export default function Home() {
     return matchesBand && matchesSearch;
   });
 
-  // Cards: group by canonical band, deduplicate members (merge roles + formation notes)
   const groupedByBand = bands
     .filter((b) => !selectedBand || b === selectedBand)
     .map((band) => {
@@ -81,150 +81,163 @@ export default function Home() {
   return (
     <main className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="border-b px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="border-b px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between shrink-0">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Visualizador de Artistas</h1>
           <p className="text-muted-foreground text-sm">Colombian music bands · members · instruments</p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant={view === "graph" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setView("graph")}
-          >
+          <Button variant={view === "graph" ? "default" : "outline"} size="sm" onClick={() => setView("graph")}>
             Network Graph
           </Button>
-          <Button
-            variant={view === "cards" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setView("cards")}
-          >
+          <Button variant={view === "cards" ? "default" : "outline"} size="sm" onClick={() => setView("cards")}>
             Cards
           </Button>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="px-6 py-3 border-b flex flex-wrap gap-2 items-center">
-        <Input
-          placeholder="Search members, roles, bands…"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setGraphSelected(null);
-          }}
-          className="max-w-xs h-8 text-sm"
-        />
-        <Button
-          variant={selectedBand === null ? "default" : "outline"}
-          size="sm"
-          onClick={() => { setSelectedBand(null); setGraphSelected(null); }}
-        >
-          All
-        </Button>
-        {bands.map((band) => (
-          <Button
-            key={band}
-            variant={selectedBand === band ? "default" : "outline"}
-            size="sm"
-            onClick={() => handleBandFilter(band)}
-          >
-            {band}
-          </Button>
-        ))}
-      </div>
+      {/* Body row */}
+      <div className="flex flex-1 min-h-0 overflow-hidden">
 
-      {/* Content */}
-      <AnimatePresence mode="wait">
-        {view === "graph" ? (
-          <motion.div
-            key="graph"
-            className="flex-1 overflow-hidden relative"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Suspense fallback={
-              <div className="flex items-center justify-center h-full text-muted-foreground">
-                Loading graph…
-              </div>
-            }>
-              <NetworkGraph
-                highlight={search || undefined}
-                selected={graphSelected}
-                onSelect={(node) => {
-                  setGraphSelected(node);
-                  if (node?.type === "band") setSelectedBand(node.id);
-                  else if (!node) setSelectedBand(null);
-                }}
-              />
-            </Suspense>
+        {/* ── Left sidebar ─────────────────────────────────────────────────── */}
+        <aside className="w-52 shrink-0 border-r flex flex-col bg-background">
+          {/* Search – always visible */}
+          <div className="p-3 border-b">
+            <Input
+              placeholder="Search…"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setGraphSelected(null); }}
+              className="h-8 text-sm"
+            />
+          </div>
 
-            <AnimatePresence>
-              {graphSelected && (
-                <Suspense fallback={null}>
-                  <DetailPanel
+          {/* Bands toggle */}
+          <button
+            className="flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:bg-accent transition-colors border-b"
+            onClick={() => setFiltersOpen((v) => !v)}
+          >
+            Bands
+            <ChevronDown
+              className="w-3.5 h-3.5 transition-transform duration-200"
+              style={{ transform: filtersOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+            />
+          </button>
+
+          {/* Band list – collapsed by default */}
+          {filtersOpen && (
+            <div className="overflow-y-auto flex-1 py-1">
+              <button
+                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors ${selectedBand === null ? "font-semibold text-primary" : "text-foreground"}`}
+                onClick={() => { setSelectedBand(null); setGraphSelected(null); }}
+              >
+                All bands
+              </button>
+              {bands.map((band) => (
+                <button
+                  key={band}
+                  className={`w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors truncate ${selectedBand === band ? "font-semibold text-primary bg-accent/50" : "text-foreground"}`}
+                  onClick={() => handleBandFilter(band)}
+                  title={band}
+                >
+                  {band}
+                </button>
+              ))}
+            </div>
+          )}
+        </aside>
+
+        {/* ── Main content ──────────────────────────────────────────────────── */}
+        <div className="flex-1 min-w-0 overflow-hidden relative">
+          <AnimatePresence mode="wait">
+            {view === "graph" ? (
+              <motion.div
+                key="graph"
+                className="absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Suspense fallback={
+                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                    Loading graph…
+                  </div>
+                }>
+                  <NetworkGraph
+                    highlight={search || undefined}
                     selected={graphSelected}
-                    onClose={() => { setGraphSelected(null); setSelectedBand(null); }}
                     onSelect={(node) => {
                       setGraphSelected(node);
-                      if (node.type === "band") setSelectedBand(node.id);
+                      if (node?.type === "band") setSelectedBand(node.id);
+                      else if (!node) setSelectedBand(null);
                     }}
                   />
                 </Suspense>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="cards"
-            className="flex-1 overflow-y-auto p-6"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-              {groupedByBand.map(({ band, memberMap, context }) => (
-                <Card
-                  key={band}
-                  className="cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => handleBandFilter(band)}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base">{band}</CardTitle>
-                    <CardDescription className="text-xs">{context}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-1.5">
-                    {[...memberMap.entries()].map(([member, { role, note }]) => (
-                      <div key={member} className="flex items-start justify-between gap-2">
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-medium leading-snug truncate">{member}</span>
-                          {note && (
-                            <span className="text-xs text-muted-foreground italic">{note}</span>
-                          )}
-                        </div>
-                        <Badge
-                          className={`text-xs shrink-0 ${BAND_COLORS[band] ?? "bg-gray-100 text-gray-800"}`}
-                          variant="outline"
-                        >
-                          {role}
-                        </Badge>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              ))}
-              {groupedByBand.length === 0 && (
-                <p className="col-span-full text-center text-muted-foreground py-12">
-                  No results found.
-                </p>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+                <AnimatePresence>
+                  {graphSelected && (
+                    <Suspense fallback={null}>
+                      <DetailPanel
+                        selected={graphSelected}
+                        onClose={() => { setGraphSelected(null); setSelectedBand(null); }}
+                        onSelect={(node) => {
+                          setGraphSelected(node);
+                          if (node.type === "band") setSelectedBand(node.id);
+                        }}
+                      />
+                    </Suspense>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="cards"
+                className="absolute inset-0 overflow-y-auto p-6"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+                  {groupedByBand.map(({ band, memberMap, context }) => (
+                    <Card
+                      key={band}
+                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => handleBandFilter(band)}
+                    >
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">{band}</CardTitle>
+                        <CardDescription className="text-xs">{context}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-1.5">
+                        {[...memberMap.entries()].map(([member, { role, note }]) => (
+                          <div key={member} className="flex items-start justify-between gap-2">
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-sm font-medium leading-snug truncate">{member}</span>
+                              {note && <span className="text-xs text-muted-foreground italic">{note}</span>}
+                            </div>
+                            <Badge
+                              className={`text-xs shrink-0 ${BAND_COLORS[band] ?? "bg-gray-100 text-gray-800"}`}
+                              variant="outline"
+                            >
+                              {role}
+                            </Badge>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+                  {groupedByBand.length === 0 && (
+                    <p className="col-span-full text-center text-muted-foreground py-12">
+                      No results found.
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
     </main>
   );
 }
