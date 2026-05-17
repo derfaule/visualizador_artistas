@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "What to scrape"
+        description: 'What to scrape: bands (~2 min) or all bands+members (~15 min)'
         required: true
         default: bands
         type: choice
         options:
-          - bands          # ~2 min  — bands only
-          - all            # ~15 min — bands + all members
+          - bands
+          - all
 
 jobs:
   scrape:
@@ -28,7 +28,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
           cache: npm
 
       - run: npm ci
@@ -51,15 +51,13 @@ jobs:
           git checkout -b "$BRANCH"
           git add src/lib/scraped.json
           if git diff --staged --quiet; then
-            echo "No new data — nothing to review."
+            echo "No new data - nothing to review."
           else
             git commit -m "chore: scraped data (${{ inputs.mode }}, run ${GITHUB_RUN_ID})"
             git push origin "$BRANCH"
             gh pr create \
               --title "Review scraped data (${{ inputs.mode }})" \
-              --body "Triggered by workflow run [${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}).
-
-Review the \`src/lib/scraped.json\` diff below, then merge when it looks good." \
+              --body "Review src/lib/scraped.json below, then merge when it looks good." \
               --base claude/visualize-band-data-A8Vrt \
               --head "$BRANCH"
           fi
