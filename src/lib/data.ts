@@ -4,6 +4,13 @@ export interface DataRecord {
   role: string;
   context: string;
   citations: string;
+  /** ISO 3166-1 alpha-2 country code of the band. Omit for Colombia (CO). */
+  country?: string;
+}
+
+/** Returns true for Colombian bands (country omitted or explicitly "CO"). */
+export function isColombianBand(record: DataRecord): boolean {
+  return !record.country || record.country === "CO";
 }
 
 /** Strips parenthetical formation suffixes, e.g. "Orquesta de Ricaurte Arias (Jardín Pilsen)" → { name: "Orquesta de Ricaurte Arias", note: "Jardín Pilsen" } */
@@ -174,8 +181,8 @@ export const DATA: DataRecord[] = [
   { band: "Fantasio Grill (Later Trio)", member: "Teresita Rendón", role: "Cantante", context: "Trio Formation (after Sexteto Miramar)", citations: "[21]" },
   { band: "Fantasio Grill (Later Trio)", member: "William Jaramillo", role: "Batería", context: "Trio Formation (after Sexteto Miramar)", citations: "[21]" },
   { band: "Orquesta de Joimer y sus Estrellas", member: "Joimer", role: "Bajista (Director)", context: "General Formation (Itagüí)", citations: "[30]" },
-  { band: "Daniel Santos Sonora", member: "(Ecuatoriano)", role: "Director", context: "Almacenes Sears Performance", citations: "[30]" },
-  { band: "Daniel Santos Sonora", member: "\"Chucho\" Villegas (de Fruko y sus Tesos)", role: "Bongocero", context: "Almacenes Sears Performance", citations: "[30]" },
+  { band: "Daniel Santos Sonora", member: "(Ecuatoriano)", role: "Director", context: "Almacenes Sears Performance", citations: "[30]", country: "PR" },
+  { band: "Daniel Santos Sonora", member: "\"Chucho\" Villegas (de Fruko y sus Tesos)", role: "Bongocero", context: "Almacenes Sears Performance", citations: "[30]", country: "PR" },
   { band: "Las Hermanas Rendón (Duet)", member: "Teresita Rendón", role: "Vocalista", context: "Duet Formation", citations: "[31]" },
   { band: "Las Hermanas Rendón (Duet)", member: "Rosalba Rendón (Ada Román)", role: "Vocalista", context: "Duet Formation", citations: "[31]" },
   { band: "Las Hermanas Rendón (Duet)", member: "Campo Elías", role: "Bajo (Collaborator)", context: "Duet Collaboration", citations: "[31]" },

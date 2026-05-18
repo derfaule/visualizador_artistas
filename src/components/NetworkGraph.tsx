@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
-import { DATA, normalizeBandName } from "@/lib/data";
+import { DATA, normalizeBandName, isColombianBand } from "@/lib/data";
 
 export type SelectedNode = { type: "band" | "member"; id: string };
 
@@ -51,13 +51,14 @@ function wrapLabel(name: string): string[] {
 }
 
 function buildGraphData() {
-  const bands = [...new Set(DATA.map((d) => normalizeBandName(d.band).name))];
+  const colombianData = DATA.filter(isColombianBand);
+  const bands = [...new Set(colombianData.map((d) => normalizeBandName(d.band).name))];
   const bandColor = new Map(
     bands.map((b, i) => [b, BAND_COLOR_LIST[i % BAND_COLOR_LIST.length]])
   );
 
   const memberBandsMap = new Map<string, Set<string>>();
-  DATA.forEach(({ band, member }) => {
+  colombianData.forEach(({ band, member }) => {
     const { name } = normalizeBandName(band);
     if (!memberBandsMap.has(member)) memberBandsMap.set(member, new Set());
     memberBandsMap.get(member)!.add(name);

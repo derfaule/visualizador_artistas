@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { DATA, normalizeBandName } from "@/lib/data";
+import { DATA, normalizeBandName, isColombianBand } from "@/lib/data";
 import type { SelectedNode } from "@/components/NetworkGraph";
 
 const NetworkGraph = lazy(() => import("@/components/NetworkGraph"));
@@ -41,9 +41,10 @@ export default function Home() {
   const [graphSelected, setGraphSelected] = useState<SelectedNode | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const bands = [...new Set(DATA.map((d) => normalizeBandName(d.band).name))];
+  const colombianData = DATA.filter(isColombianBand);
+  const bands = [...new Set(colombianData.map((d) => normalizeBandName(d.band).name))];
 
-  const filtered = DATA.filter((d) => {
+  const filtered = colombianData.filter((d) => {
     const canonicalBand = normalizeBandName(d.band).name;
     const matchesBand = selectedBand ? canonicalBand === selectedBand : true;
     const matchesSearch =
