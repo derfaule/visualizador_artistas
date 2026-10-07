@@ -248,6 +248,36 @@ export default function NetworkGraph({ highlight, selected, onSelect }: Props) {
     return 0.2;
   }, []);
 
+  const paintBackground = useCallback((ctx: CanvasRenderingContext2D, globalScale: number) => {
+    const { width, height } = ctx.canvas;
+    ctx.fillStyle = "#faf8f4";
+    ctx.fillRect(0, 0, width, height);
+
+    // Dot grid — fixed screen-space spacing regardless of zoom
+    const spacing = 24;
+    const dotR = 1;
+    ctx.fillStyle = "#c8bfaf";
+
+    // Transform to canvas coordinates: invert the current transform
+    const t = ctx.getTransform();
+    const invScale = 1 / t.a; // t.a == globalScale
+    const ox = -t.e * invScale;
+    const oy = -t.f * invScale;
+
+    const startX = Math.floor(ox / (spacing * invScale)) * spacing * invScale;
+    const startY = Math.floor(oy / (spacing * invScale)) * spacing * invScale;
+    const endX = ox + width * invScale + spacing * invScale;
+    const endY = oy + height * invScale + spacing * invScale;
+
+    for (let x = startX; x < endX; x += spacing * invScale) {
+      for (let y = startY; y < endY; y += spacing * invScale) {
+        ctx.beginPath();
+        ctx.arc(x, y, dotR * invScale, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    }
+  }, []);
+
   const handleNodeClick = useCallback((node: GraphNode) => {
     const id = node.name;
     const type = node.type;
@@ -256,14 +286,15 @@ export default function NetworkGraph({ highlight, selected, onSelect }: Props) {
   }, [onSelect]);
 
   return (
-    <div ref={containerRef} className="w-full h-full relative bg-slate-50">
+    <div ref={containerRef} className="w-full h-full relative" style={{ background: "#faf8f4" }}>
       {dims.width > 0 && (
         <ForceGraph2D
           ref={fgRef}
           graphData={{ nodes: nodes as any, links: links as any }}
           width={dims.width}
           height={dims.height}
-          backgroundColor="#f8fafc"
+          backgroundColor="#faf8f4"
+          onRenderFramePre={paintBackground}
           nodeCanvasObject={paintNode as any}
           nodeCanvasObjectMode={() => "replace"}
           nodePointerAreaPaint={paintPointerArea as any}
