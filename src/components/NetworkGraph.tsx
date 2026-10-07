@@ -26,6 +26,7 @@ interface GraphNode {
   name: string;
   bands: string[];
   color: string;
+  memberCount: number; // band: # members; member: # bands
   x?: number;
   y?: number;
 }
@@ -51,6 +52,15 @@ function buildGraphData() {
     memberBandsMap.get(member)!.add(name);
   });
 
+  // Count members per band for data-driven sizing
+  const bandMemberCount = new Map<string, number>();
+  memberBandsMap.forEach((mBands) => {
+    mBands.forEach((band) => {
+      bandMemberCount.set(band, (bandMemberCount.get(band) ?? 0) + 1);
+    });
+  });
+  const maxMembers = Math.max(...bandMemberCount.values(), 1);
+
   const nodes: GraphNode[] = [
     ...bands.map((b) => ({
       id: `band::${b}`,
@@ -58,6 +68,7 @@ function buildGraphData() {
       name: b,
       bands: [b],
       color: bandColor.get(b) ?? "#6366f1",
+      memberCount: bandMemberCount.get(b) ?? 1,
     })),
     ...[...memberBandsMap.entries()].map(([m, mBands]) => ({
       id: `member::${m}`,
@@ -67,6 +78,7 @@ function buildGraphData() {
       color: mBands.size > 1
         ? "#1e293b"
         : (bandColor.get([...mBands][0]) ?? "#94a3b8"),
+      memberCount: mBands.size,
     })),
   ];
 
@@ -82,7 +94,7 @@ function buildGraphData() {
     });
   });
 
-  return { nodes, links, bandColor };
+  return { nodes, links, bandColor, maxMembers };
 }
 
 export default function NetworkGraph({ highlight, selected, onSelect }: Props) {
@@ -95,7 +107,7 @@ export default function NetworkGraph({ highlight, selected, onSelect }: Props) {
   useEffect(() => { selectedRef.current = selected; }, [selected]);
   useEffect(() => { highlightRef.current = highlight; }, [highlight]);
 
-  const { nodes, links, bandColor } = useMemo(() => buildGraphData(), []);
+  const { nodes, links, bandColor, maxMembers } = useMemo(() => buildGraphData(), []);
 
   // Measure container
   useEffect(() => {
@@ -141,7 +153,10 @@ export default function NetworkGraph({ highlight, selected, onSelect }: Props) {
 
   const paintNode = useCallback((node: GraphNode, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const isBand = node.type === "band";
-    const r = isBand ? 14 : node.bands.length > 1 ? 6 : 4;
+    // Band radius: 9–20px scaled by member count; member radius: 3–9px scaled by band count
+    const r = isBand
+      ? 9 + Math.sqrt(node.memberCount / maxMembers) * 11
+      : 3 + Math.min(node.memberCount - 1, 4) * 1.5;
     const opacity = getOpacity(node.type, node.name);
     const sel = selectedRef.current;
     const isSelected = sel?.type === node.type && sel.id === node.name;
@@ -208,7 +223,9 @@ export default function NetworkGraph({ highlight, selected, onSelect }: Props) {
   }, [getOpacity]);
 
   const paintPointerArea = useCallback((node: GraphNode, color: string, ctx: CanvasRenderingContext2D) => {
-    const r = node.type === "band" ? 16 : 8;
+    const r = node.type === "band"
+      ? 9 + Math.sqrt(node.memberCount / maxMembers) * 11 + 3
+      : 3 + Math.min(node.memberCount - 1, 4) * 1.5 + 4;
     ctx.beginPath();
     ctx.arc(node.x!, node.y!, r, 0, 2 * Math.PI);
     ctx.fillStyle = color;
@@ -266,10 +283,10 @@ export default function NetworkGraph({ highlight, selected, onSelect }: Props) {
       {/* Legend */}
       <div className="absolute bottom-4 left-4 flex gap-4 text-xs text-slate-500 bg-white/90 backdrop-blur px-3 py-2 rounded-lg border border-slate-200 shadow-sm pointer-events-none">
         <span className="flex items-center gap-1.5">
-          <span className="w-4 h-4 rounded-full bg-indigo-500 inline-block" /> Band
+          <span className="w-4 h-4 rounded-full bg-indigo-500 inline-block" /> Band <span className="text-slate-400">(size = members)</span>
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-slate-800 inline-block border border-indigo-400" /> Multi-band
+          <span className="w-2.5 h-2.5 rounded-full bg-slate-800 inline-block border border-indigo-400" /> Multi-band musician
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-indigo-200 inline-block border border-indigo-400" /> Member
