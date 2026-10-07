@@ -2,7 +2,6 @@
 
 import { useState, lazy, Suspense } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +38,6 @@ export default function Home() {
   const [selectedBand, setSelectedBand] = useState<string | null>(null);
   const [view, setView] = useState<View>("graph");
   const [graphSelected, setGraphSelected] = useState<SelectedNode | null>(null);
-  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const colombianData = DATA.filter(isColombianBand);
   const bands = [...new Set(colombianData.map((d) => normalizeBandName(d.band).name))];
@@ -81,69 +79,61 @@ export default function Home() {
 
   return (
     <main className="h-screen bg-background flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="border-b px-6 py-4 flex gap-2 shrink-0 items-center">
-        <div className="flex gap-2">
+      {/* Top control bar */}
+      <div className="border-b px-4 py-2 flex items-center gap-3 shrink-0 bg-background">
+        {/* View toggles */}
+        <div className="flex gap-1 shrink-0">
           <Button variant={view === "graph" ? "default" : "outline"} size="sm" onClick={() => setView("graph")}>
-            Network Graph
+            Graph
           </Button>
           <Button variant={view === "cards" ? "default" : "outline"} size="sm" onClick={() => setView("cards")}>
             Cards
           </Button>
         </div>
+
+        <div className="w-px h-5 bg-border shrink-0" />
+
+        {/* Search */}
+        <Input
+          placeholder="Search…"
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setGraphSelected(null); }}
+          className="h-8 text-sm w-44 shrink-0"
+        />
+
+        <div className="w-px h-5 bg-border shrink-0" />
+
+        {/* Band chips – horizontally scrollable */}
+        <div className="flex gap-1.5 overflow-x-auto flex-1 min-w-0 py-0.5 scrollbar-none">
+          <button
+            onClick={() => { setSelectedBand(null); setGraphSelected(null); }}
+            className={`px-2.5 py-1 rounded-full text-xs font-medium shrink-0 transition-colors ${
+              selectedBand === null
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+            }`}
+          >
+            All
+          </button>
+          {bands.map((band) => (
+            <button
+              key={band}
+              onClick={() => handleBandFilter(band)}
+              title={band}
+              className={`px-2.5 py-1 rounded-full text-xs font-medium shrink-0 whitespace-nowrap transition-colors ${
+                selectedBand === band
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+              }`}
+            >
+              {band}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Body row */}
+      {/* Main content */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
-
-        {/* ── Left sidebar ─────────────────────────────────────────────────── */}
-        <aside className="w-52 shrink-0 border-r flex flex-col bg-background">
-          {/* Search – always visible */}
-          <div className="p-3 border-b">
-            <Input
-              placeholder="Search…"
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setGraphSelected(null); }}
-              className="h-8 text-sm"
-            />
-          </div>
-
-          {/* Bands toggle */}
-          <button
-            className="flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:bg-accent transition-colors border-b"
-            onClick={() => setFiltersOpen((v) => !v)}
-          >
-            Bands
-            <ChevronDown
-              className="w-3.5 h-3.5 transition-transform duration-200"
-              style={{ transform: filtersOpen ? "rotate(180deg)" : "rotate(0deg)" }}
-            />
-          </button>
-
-          {/* Band list – collapsed by default */}
-          {filtersOpen && (
-            <div className="overflow-y-auto flex-1 py-1">
-              <button
-                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors ${selectedBand === null ? "font-semibold text-primary" : "text-foreground"}`}
-                onClick={() => { setSelectedBand(null); setGraphSelected(null); }}
-              >
-                All bands
-              </button>
-              {bands.map((band) => (
-                <button
-                  key={band}
-                  className={`w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors truncate ${selectedBand === band ? "font-semibold text-primary bg-accent/50" : "text-foreground"}`}
-                  onClick={() => handleBandFilter(band)}
-                  title={band}
-                >
-                  {band}
-                </button>
-              ))}
-            </div>
-          )}
-        </aside>
-
-        {/* ── Main content ──────────────────────────────────────────────────── */}
         <div className="flex-1 min-w-0 overflow-hidden relative">
           <AnimatePresence mode="wait">
             {view === "graph" ? (
