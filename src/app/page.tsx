@@ -210,36 +210,38 @@ export default function Home() {
   return (
     <main className="h-screen bg-background flex overflow-hidden">
       {/* ── Left column ──────────────────────────────────────────── */}
-      <aside className="w-60 shrink-0 border-r flex flex-col bg-background p-5 gap-5">
-        {/* Title + description */}
-        <div>
-          <h1 className="text-base font-semibold tracking-tight leading-snug">
-            Visualizador de Artistas
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-            Red de bandas y músicos de la música colombiana. Explora conexiones entre agrupaciones e integrantes.
-          </p>
+      <aside className="w-72 shrink-0 border-r flex flex-col bg-background">
+        {/* Editorial header */}
+        <div className="flex-1 p-6 flex flex-col justify-between min-h-0">
+          <div>
+            <p className="text-4xl font-bold leading-[1.1] tracking-tight text-foreground">
+              Bandas y{" "}
+              <span className="bg-indigo-500 text-white px-1">músicos</span>{" "}
+              de Colombia.
+            </p>
+            <p className="mt-5 text-sm text-muted-foreground leading-relaxed">
+              Una red de agrupaciones e integrantes de la música colombiana del siglo XX. Haz clic en un nodo para explorar sus conexiones.
+            </p>
+          </div>
+
+          {/* Controls at the bottom */}
+          <div className="flex flex-col gap-3 pt-6">
+            <FilterSearch
+              onSelectBand={handleSelectBand}
+              onSelectMember={handleSelectMember}
+              onClear={handleClear}
+              selectedLabel={selectedLabel}
+            />
+            <div className="flex gap-1">
+              <Button variant={view === "graph" ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setView("graph")}>
+                Graph
+              </Button>
+              <Button variant={view === "cards" ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setView("cards")}>
+                Cards
+              </Button>
+            </div>
+          </div>
         </div>
-
-        <div className="h-px bg-border" />
-
-        {/* View toggles */}
-        <div className="flex gap-1">
-          <Button variant={view === "graph" ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setView("graph")}>
-            Graph
-          </Button>
-          <Button variant={view === "cards" ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setView("cards")}>
-            Cards
-          </Button>
-        </div>
-
-        {/* Search */}
-        <FilterSearch
-          onSelectBand={handleSelectBand}
-          onSelectMember={handleSelectMember}
-          onClear={handleClear}
-          selectedLabel={selectedLabel}
-        />
       </aside>
 
       {/* ── Main content ─────────────────────────────────────────── */}
