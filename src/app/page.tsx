@@ -87,7 +87,7 @@ function FilterSearch({
   }
 
   return (
-    <div ref={wrapperRef} className="relative w-64">
+    <div ref={wrapperRef} className="relative w-full">
       {/* Input */}
       <div className="flex items-center h-8 rounded-md border border-input bg-background px-2 gap-1.5 focus-within:ring-1 focus-within:ring-ring">
         <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
@@ -208,30 +208,42 @@ export default function Home() {
   }
 
   return (
-    <main className="h-screen bg-background flex flex-col overflow-hidden">
-      {/* Top bar */}
-      <div className="border-b px-4 py-2 flex items-center gap-3 shrink-0 bg-background">
-        <div className="flex gap-1 shrink-0">
-          <Button variant={view === "graph" ? "default" : "outline"} size="sm" onClick={() => setView("graph")}>
+    <main className="h-screen bg-background flex overflow-hidden">
+      {/* ── Left column ──────────────────────────────────────────── */}
+      <aside className="w-60 shrink-0 border-r flex flex-col bg-background p-5 gap-5">
+        {/* Title + description */}
+        <div>
+          <h1 className="text-base font-semibold tracking-tight leading-snug">
+            Visualizador de Artistas
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+            Red de bandas y músicos de la música colombiana. Explora conexiones entre agrupaciones e integrantes.
+          </p>
+        </div>
+
+        <div className="h-px bg-border" />
+
+        {/* View toggles */}
+        <div className="flex gap-1">
+          <Button variant={view === "graph" ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setView("graph")}>
             Graph
           </Button>
-          <Button variant={view === "cards" ? "default" : "outline"} size="sm" onClick={() => setView("cards")}>
+          <Button variant={view === "cards" ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setView("cards")}>
             Cards
           </Button>
         </div>
 
-        <div className="w-px h-5 bg-border shrink-0" />
-
+        {/* Search */}
         <FilterSearch
           onSelectBand={handleSelectBand}
           onSelectMember={handleSelectMember}
           onClear={handleClear}
           selectedLabel={selectedLabel}
         />
-      </div>
+      </aside>
 
-      {/* Main content */}
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      {/* ── Main content ─────────────────────────────────────────── */}
+      <div className="flex flex-1 min-w-0 min-h-0 overflow-hidden">
         <div className="flex-1 min-w-0 overflow-hidden relative">
           <AnimatePresence mode="wait">
             {view === "graph" ? (
