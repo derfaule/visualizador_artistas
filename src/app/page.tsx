@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, lazy, Suspense } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { DATA, normalizeBandName, isColombianBand } from "@/lib/data";
 import type { SelectedNode } from "@/components/NetworkGraph";
 
@@ -31,29 +31,145 @@ const BAND_COLORS: Record<string, string> = {
   "Los Diplomáticos": "bg-violet-100 text-violet-800 border-violet-200",
 };
 
+const colombianData = DATA.filter(isColombianBand);
+const allBands = [...new Set(colombianData.map((d) => normalizeBandName(d.band).name))].sort();
+const allMembers = [...new Set(colombianData.map((d) => d.member))].sort();
+
 type View = "graph" | "cards";
 
+function FilterSearch({
+  onSelectBand,
+  onSelectMember,
+  onClear,
+  selectedLabel,
+}: {
+  onSelectBand: (band: string) => void;
+  onSelectMember: (member: string) => void;
+  onClear: () => void;
+  selectedLabel: string | null;
+}) {
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const q = query.toLowerCase();
+  const matchBands = q ? allBands.filter((b) => b.toLowerCase().includes(q)) : allBands;
+  const matchMembers = q ? allMembers.filter((m) => m.toLowerCase().includes(q)) : [];
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setQuery("");
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  function selectBand(band: string) {
+    onSelectBand(band);
+    setQuery("");
+    setOpen(false);
+  }
+
+  function selectMember(member: string) {
+    onSelectMember(member);
+    setQuery("");
+    setOpen(false);
+  }
+
+  function clear() {
+    onClear();
+    setQuery("");
+    setOpen(false);
+  }
+
+  return (
+    <div ref={wrapperRef} className="relative w-64">
+      {/* Input */}
+      <div className="flex items-center h-8 rounded-md border border-input bg-background px-2 gap-1.5 focus-within:ring-1 focus-within:ring-ring">
+        <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+        {selectedLabel && !open ? (
+          <span className="flex-1 text-sm truncate text-foreground">{selectedLabel}</span>
+        ) : (
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+            onFocus={() => setOpen(true)}
+            placeholder={selectedLabel ? selectedLabel : "Search bands or members…"}
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground min-w-0"
+          />
+        )}
+        {selectedLabel && (
+          <button
+            onMouseDown={(e) => { e.preventDefault(); clear(); }}
+            className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+
+      {/* Dropdown */}
+      {open && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg z-50 max-h-72 overflow-y-auto">
+          {matchBands.length === 0 && matchMembers.length === 0 && (
+            <div className="px-3 py-4 text-sm text-muted-foreground text-center">No results</div>
+          )}
+
+          {matchBands.length > 0 && (
+            <>
+              <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Bands
+              </div>
+              {matchBands.map((band) => (
+                <button
+                  key={band}
+                  onMouseDown={(e) => { e.preventDefault(); selectBand(band); }}
+                  className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+                >
+                  {band}
+                </button>
+              ))}
+            </>
+          )}
+
+          {matchMembers.length > 0 && (
+            <>
+              <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border-t mt-1">
+                Members
+              </div>
+              {matchMembers.slice(0, 20).map((member) => (
+                <button
+                  key={member}
+                  onMouseDown={(e) => { e.preventDefault(); selectMember(member); }}
+                  className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors text-muted-foreground"
+                >
+                  {member}
+                </button>
+              ))}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
-  const [search, setSearch] = useState("");
   const [selectedBand, setSelectedBand] = useState<string | null>(null);
   const [view, setView] = useState<View>("graph");
   const [graphSelected, setGraphSelected] = useState<SelectedNode | null>(null);
 
-  const colombianData = DATA.filter(isColombianBand);
-  const bands = [...new Set(colombianData.map((d) => normalizeBandName(d.band).name))];
-
   const filtered = colombianData.filter((d) => {
     const canonicalBand = normalizeBandName(d.band).name;
-    const matchesBand = selectedBand ? canonicalBand === selectedBand : true;
-    const matchesSearch =
-      search === "" ||
-      d.member.toLowerCase().includes(search.toLowerCase()) ||
-      d.role.toLowerCase().includes(search.toLowerCase()) ||
-      canonicalBand.toLowerCase().includes(search.toLowerCase());
-    return matchesBand && matchesSearch;
+    return selectedBand ? canonicalBand === selectedBand : true;
   });
 
-  const groupedByBand = bands
+  const groupedByBand = allBands
     .filter((b) => !selectedBand || b === selectedBand)
     .map((band) => {
       const bandRows = filtered.filter((d) => normalizeBandName(d.band).name === band);
@@ -72,16 +188,29 @@ export default function Home() {
     })
     .filter((g) => g.memberMap.size > 0);
 
-  const handleBandFilter = (band: string | null) => {
-    setSelectedBand(band === selectedBand ? null : band);
-    setGraphSelected(band && band !== selectedBand ? { type: "band", id: band } : null);
-  };
+  const selectedLabel = graphSelected
+    ? graphSelected.id
+    : selectedBand ?? null;
+
+  function handleSelectBand(band: string) {
+    setSelectedBand(band);
+    setGraphSelected({ type: "band", id: band });
+  }
+
+  function handleSelectMember(member: string) {
+    setSelectedBand(null);
+    setGraphSelected({ type: "member", id: member });
+  }
+
+  function handleClear() {
+    setSelectedBand(null);
+    setGraphSelected(null);
+  }
 
   return (
     <main className="h-screen bg-background flex flex-col overflow-hidden">
-      {/* Top control bar */}
+      {/* Top bar */}
       <div className="border-b px-4 py-2 flex items-center gap-3 shrink-0 bg-background">
-        {/* View toggles */}
         <div className="flex gap-1 shrink-0">
           <Button variant={view === "graph" ? "default" : "outline"} size="sm" onClick={() => setView("graph")}>
             Graph
@@ -93,43 +222,12 @@ export default function Home() {
 
         <div className="w-px h-5 bg-border shrink-0" />
 
-        {/* Search */}
-        <Input
-          placeholder="Search…"
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setGraphSelected(null); }}
-          className="h-8 text-sm w-44 shrink-0"
+        <FilterSearch
+          onSelectBand={handleSelectBand}
+          onSelectMember={handleSelectMember}
+          onClear={handleClear}
+          selectedLabel={selectedLabel}
         />
-
-        <div className="w-px h-5 bg-border shrink-0" />
-
-        {/* Band chips – horizontally scrollable */}
-        <div className="flex gap-1.5 overflow-x-auto flex-1 min-w-0 py-0.5 scrollbar-none">
-          <button
-            onClick={() => { setSelectedBand(null); setGraphSelected(null); }}
-            className={`px-2.5 py-1 rounded-full text-xs font-medium shrink-0 transition-colors ${
-              selectedBand === null
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
-            }`}
-          >
-            All
-          </button>
-          {bands.map((band) => (
-            <button
-              key={band}
-              onClick={() => handleBandFilter(band)}
-              title={band}
-              className={`px-2.5 py-1 rounded-full text-xs font-medium shrink-0 whitespace-nowrap transition-colors ${
-                selectedBand === band
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
-              }`}
-            >
-              {band}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Main content */}
@@ -151,12 +249,11 @@ export default function Home() {
                   </div>
                 }>
                   <NetworkGraph
-                    highlight={search || undefined}
                     selected={graphSelected}
                     onSelect={(node) => {
                       setGraphSelected(node);
                       if (node?.type === "band") setSelectedBand(node.id);
-                      else if (!node) setSelectedBand(null);
+                      else if (!node) { setSelectedBand(null); }
                     }}
                   />
                 </Suspense>
@@ -190,7 +287,7 @@ export default function Home() {
                     <Card
                       key={band}
                       className="cursor-pointer hover:shadow-md transition-shadow"
-                      onClick={() => handleBandFilter(band)}
+                      onClick={() => handleSelectBand(band)}
                     >
                       <CardHeader className="pb-3">
                         <CardTitle className="text-base">{band}</CardTitle>
