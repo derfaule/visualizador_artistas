@@ -82,11 +82,7 @@ export default function Home() {
   return (
     <main className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="border-b px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between shrink-0">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Visualizador de Artistas</h1>
-          <p className="text-muted-foreground text-sm">Colombian music bands · members · instruments</p>
-        </div>
+      <div className="border-b px-6 py-4 flex gap-2 shrink-0 items-center">
         <div className="flex gap-2">
           <Button variant={view === "graph" ? "default" : "outline"} size="sm" onClick={() => setView("graph")}>
             Network Graph
