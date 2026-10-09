@@ -274,15 +274,70 @@ export default function NetworkGraph({ highlight, selected, onSelect }: Props) {
       });
     };
 
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isMouseDown) return;
+      translateX = e.clientX - startX;
+      translateY = e.clientY - startY;
+      root.setAttribute("transform", `translate(${translateX},${translateY}) scale(${scale})`);
+    };
+
+    const handleMouseUp = () => {
+      isMouseDown = false;
+      svg.style.cursor = "grab";
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
     return () => {
-      document.removeEventListener("mousemove", () => {});
-      document.removeEventListener("mouseup", () => {});
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      updateStyles();
     };
   }, []);
 
   // Update styles when selection/highlight changes
   useEffect(() => {
-    // Trigger style update
+    const svg = svgRef.current;
+    if (!svg) return;
+    const root = svg.querySelector("g");
+    if (!root) return;
+
+    const { nodes } = buildGraphData();
+    const sel = selectedRef.current;
+    const hl = highlightRef.current?.toLowerCase();
+
+    const activeBands = new Set<string>();
+    const activeMembers = new Set<string>();
+
+    if (sel?.type === "band") {
+      activeBands.add(sel.id);
+      DATA.filter((d) => normalizeBandName(d.band).name === sel.id).forEach((d) =>
+        activeMembers.add(d.member)
+      );
+    } else if (sel?.type === "member") {
+      activeMembers.add(sel.id);
+      DATA.filter((d) => d.member === sel.id).forEach((d) =>
+        activeBands.add(normalizeBandName(d.band).name)
+      );
+    }
+
+    const isLit = (type: "band" | "member", name: string) => {
+      if (!sel && !hl) return true;
+      if (hl) return name.toLowerCase().includes(hl);
+      return type === "band" ? activeBands.has(name) : activeMembers.has(name);
+    };
+
+    root.querySelectorAll("circle").forEach((el) => {
+      const nodeData = nodes.find((n) => n.x === Number(el.getAttribute("cx")) && n.y === Number(el.getAttribute("cy")));
+      if (!nodeData) return;
+      el.setAttribute("opacity", String(isLit(nodeData.type, nodeData.name) ? 1 : 0.08));
+    });
+
+    root.querySelectorAll("line").forEach((el) => {
+      const opacity = !sel && !hl ? 0.25 : 0.04;
+      el.setAttribute("opacity", String(opacity));
+    });
   }, [selected, highlight]);
 
   return (
