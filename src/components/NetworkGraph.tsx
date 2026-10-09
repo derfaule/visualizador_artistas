@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { DATA, normalizeBandName } from "@/lib/data";
+import * as dagre from "@dagrejs/dagre";
 
 export type SelectedNode = { type: "band" | "member"; id: string };
 
@@ -66,30 +67,22 @@ function buildGraphData() {
   });
 
   const nodes: NodeDatum[] = [
-    ...bands.map((b, i) => {
-      const angle = (i / bands.length) * Math.PI * 2;
-      const radius = 300;
-      return {
-        id: `band::${b}`,
-        type: "band" as const,
-        name: b,
-        bands: [b],
-        x: Math.cos(angle) * radius + 500,
-        y: Math.sin(angle) * radius + 500,
-      };
-    }),
-    ...[...memberBandsMap.entries()].map(([m, mBands], i) => {
-      const angle = (i / memberBandsMap.size) * Math.PI * 2;
-      const radius = 150;
-      return {
-        id: `member::${m}`,
-        type: "member" as const,
-        name: m,
-        bands: [...mBands],
-        x: Math.cos(angle) * radius + 500,
-        y: Math.sin(angle) * radius + 500,
-      };
-    }),
+    ...bands.map((b) => ({
+      id: `band::${b}`,
+      type: "band" as const,
+      name: b,
+      bands: [b],
+      x: 0,
+      y: 0,
+    })),
+    ...[...memberBandsMap.entries()].map(([m, mBands]) => ({
+      id: `member::${m}`,
+      type: "member" as const,
+      name: m,
+      bands: [...mBands],
+      x: 0,
+      y: 0,
+    })),
   ];
 
   const links: LinkDatum[] = [];
@@ -101,6 +94,28 @@ function buildGraphData() {
         links.push({ source: memberNode, target: bandNode, bandId: band });
       }
     });
+  });
+
+  // Use Dagre for layout
+  const g = new dagre.graphlib.Graph({ directed: true });
+  g.setGraph({ rankdir: "LR", ranksep: 120, nodesep: 60 });
+  g.setDefaultEdgeLabel(() => ({}));
+
+  nodes.forEach((node) => {
+    g.setNode(node.id, { width: node.type === "band" ? 48 : 20, height: node.type === "band" ? 48 : 20 });
+  });
+
+  links.forEach((link) => {
+    g.setEdge(link.source.id, link.target.id);
+  });
+
+  dagre.layout(g);
+
+  // Update node positions from Dagre
+  nodes.forEach((node) => {
+    const pos = g.node(node.id);
+    node.x = pos.x;
+    node.y = pos.y;
   });
 
   return { nodes, links, bandColor };
